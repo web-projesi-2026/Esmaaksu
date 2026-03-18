@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RafArası — Satıcı Paneli</title>
+  <meta name="description" content="Kitaplarınızı yönetin, satışlarınızı takip edin.">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="assets/css/global.css">
+  <link rel="stylesheet" href="assets/css/layout.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+  <link rel="stylesheet" href="assets/css/pages/seller.css">
+</head>
+<body>
+  <header class="site-header">
+    <nav class="navbar navbar-expand-lg sticky-top">
+      <div class="container">
+        <a class="navbar-brand" href="index.html"><i class="bi bi-book-half me-2"></i>RafArası</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="mainNavbar">
+          <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
+            <li class="nav-item"><a class="nav-link" href="#"><i class="bi bi-bell"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="#"><i class="bi bi-person-fill" style="color: var(--primary-light);"></i></a></li>
+            <li class="nav-item ms-2">
+              <a class="btn btn-outline-secondary btn-sm" href="index.html"><i class="bi bi-box-arrow-right me-1"></i>Çıkış</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <main class="container main">
+    <div class="dashboard-layout">
+      <!-- Sidebar -->
+      <aside class="dashboard-sidebar">
+        <div class="sidebar-header">
+          <div class="sidebar-avatar" style="background: linear-gradient(135deg, var(--accent-gold), #F9A825);"><i class="bi bi-shop"></i></div>
+          <div class="sidebar-name">Satıcı</div>
+          <div class="sidebar-role">Satıcı Hesabı</div>
+        </div>
+        <ul class="sidebar-nav">
+          <li><a href="#" class="active"><i class="bi bi-grid"></i> Genel Bakış</a></li>
+          <li><a href="#"><i class="bi bi-book"></i> Kitaplarım</a></li>
+          <li><a href="#"><i class="bi bi-plus-circle"></i> Kitap Ekle</a></li>
+          <li><a href="#"><i class="bi bi-receipt"></i> Siparişler</a></li>
+          <li><a href="#"><i class="bi bi-graph-up"></i> Satış Raporu</a></li>
+          <li><a href="#"><i class="bi bi-gear"></i> Ayarlar</a></li>
+        </ul>
+      </aside>
+
+      <!-- Content -->
+      <div class="dashboard-content">
+        <h2>Satıcı Paneli</h2>
+
+        <!-- Stats -->
+        <div class="row g-3 mb-4">
+          <div class="col-sm-6 col-lg-3">
+            <div class="stat-card purple">
+              <div class="stat-icon"><i class="bi bi-book"></i></div>
+              <div class="stat-value">24</div>
+              <div class="stat-label">Toplam Kitap</div>
+            </div>
+          </div>
+          <div class="col-sm-6 col-lg-3">
+            <div class="stat-card gold">
+              <div class="stat-icon"><i class="bi bi-currency-lira"></i></div>
+              <div class="stat-value">₺3.450</div>
+              <div class="stat-label">Toplam Gelir</div>
+            </div>
+          </div>
+          <div class="col-sm-6 col-lg-3">
+            <div class="stat-card mint">
+              <div class="stat-icon"><i class="bi bi-bag-check"></i></div>
+              <div class="stat-value">67</div>
+              <div class="stat-label">Satılan Kitap</div>
+            </div>
+          </div>
+          <div class="col-sm-6 col-lg-3">
+            <div class="stat-card coral">
+              <div class="stat-icon"><i class="bi bi-clock"></i></div>
+              <div class="stat-value">5</div>
+              <div class="stat-label">Bekleyen Sipariş</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Add Book Form -->
+        <div class="glass-panel mb-4" style="border-radius: var(--radius-lg);">
+          <h3 style="margin-bottom: var(--space-lg); font-size: 1.1rem;">
+            <i class="bi bi-plus-circle me-2" style="color: var(--accent-mint);"></i>Yeni Kitap Ekle
+          </h3>
+          <form id="add-book-form">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label for="title" class="form-label">Kitap Başlığı</label>
+                <input type="text" id="title" name="title" class="form-control" placeholder="Örn: Suç ve Ceza">
+              </div>
+              <div class="col-md-6">
+                <label for="author" class="form-label">Yazar</label>
+                <input type="text" id="author" name="author" class="form-control" placeholder="Örn: Dostoyevski">
+              </div>
+              <div class="col-md-4">
+                <label for="price" class="form-label">Fiyat (₺)</label>
+                <input type="number" id="price" name="price" step="0.01" class="form-control" placeholder="0.00">
+              </div>
+              <div class="col-md-4">
+                <label for="category" class="form-label">Kategori</label>
+                <select id="category" class="form-control" style="color: var(--text-primary);">
+                  <option value="">Seçiniz</option>
+                  <option>Edebiyat</option>
+                  <option>Çocuk</option>
+                  <option>Sınav Hazırlık</option>
+                  <option>Kırtasiye</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label for="stock" class="form-label">Stok Adedi</label>
+                <input type="number" id="stock" class="form-control" placeholder="0">
+              </div>
+              <div class="col-12">
+                <label for="description" class="form-label">Açıklama</label>
+                <textarea id="description" class="form-control" rows="3" placeholder="Kitap hakkında kısa bir açıklama yazın..." style="resize: none;"></textarea>
+              </div>
+              <div class="col-12">
+                <button type="submit" class="btn btn-primary">
+                  <i class="bi bi-plus-lg me-1"></i>Kitap Ekle
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <!-- My Books -->
+        <h3 style="margin-bottom: var(--space-lg); font-size: 1.1rem;">
+          <i class="bi bi-collection me-2" style="color: var(--primary-light);"></i>Kitaplarım
+        </h3>
+        <section class="books row g-3" id="seller-books">
+          <!-- Populated by JS -->
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer class="bg-dark text-light pt-4">
+    <div class="container text-center pb-3">
+      <p class="mb-0" style="color: var(--text-muted);">&copy; 2026 RafArası. Tüm hakları saklıdır.</p>
+    </div>
+  </footer>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/pages/seller.js"></script>
+</body>
+</html>

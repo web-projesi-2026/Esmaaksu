@@ -1,0 +1,25 @@
+/* Seller dashboard styles */
+
+#add-book-form {
+  /* form is now inside glass-panel, no max-width needed */
+}
+
+#add-book-form select {
+  background: var(--bg-glass);
+  border: 1px solid var(--border-glass);
+  color: var(--text-primary);
+}
+
+#add-book-form select option {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+#seller-books .card img {
+  height: 200px;
+  object-fit: cover;
+}
+
+#seller-books h2 {
+  color: var(--text-primary);
+}

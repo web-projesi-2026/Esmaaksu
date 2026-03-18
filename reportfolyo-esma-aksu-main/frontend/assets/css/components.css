@@ -1,0 +1,260 @@
+/* =============================================
+   RAFARASI — Premium Components
+   ============================================= */
+
+/* ── Premium Book Card ── */
+.card {
+  background: var(--bg-glass);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: all var(--transition-smooth);
+  position: relative;
+}
+
+.card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-hover);
+  border-color: rgba(108, 92, 231, 0.3);
+}
+
+/* ── Inputs ── */
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 0.625rem 1rem;
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-sm);
+  background: var(--bg-glass);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  transition: all var(--transition-smooth);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.15);
+  background: var(--bg-glass-strong);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-muted);
+}
+
+/* ── Tables ── */
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.table th,
+.table td {
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid var(--border-glass);
+}
+
+.table th {
+  background: var(--bg-glass-strong);
+  text-align: left;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+}
+
+.table td {
+  color: var(--text-secondary);
+}
+
+.table tbody tr {
+  transition: all var(--transition-fast);
+}
+
+.table tbody tr:hover {
+  background: var(--bg-glass);
+}
+
+/* ── Stat Card ── */
+.stat-card {
+  background: var(--bg-glass);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  position: relative;
+  overflow: hidden;
+  transition: all var(--transition-smooth);
+}
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  border-radius: 4px 0 0 4px;
+}
+.stat-card.purple::before { background: var(--primary); }
+.stat-card.gold::before { background: var(--accent-gold); }
+.stat-card.mint::before { background: var(--accent-mint); }
+.stat-card.coral::before { background: var(--accent-coral); }
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-hover);
+}
+.stat-card .stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  margin-bottom: var(--space-md);
+}
+.stat-card.purple .stat-icon { background: rgba(108, 92, 231, 0.15); color: var(--primary-light); }
+.stat-card.gold .stat-icon { background: rgba(253, 203, 110, 0.15); color: var(--accent-gold); }
+.stat-card.mint .stat-icon { background: rgba(0, 184, 148, 0.15); color: var(--accent-mint); }
+.stat-card.coral .stat-icon { background: rgba(225, 112, 85, 0.15); color: var(--accent-coral); }
+
+.stat-card .stat-value {
+  font-family: var(--font-body);
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.stat-card .stat-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 0.25rem;
+}
+
+/* ── Glass Panel ── */
+.glass-panel {
+  background: var(--bg-glass);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+}
+
+/* ── Badge / Tag ── */
+.tag {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-full);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+.tag-primary { background: rgba(108, 92, 231, 0.15); color: var(--primary-light); }
+.tag-gold { background: rgba(253, 203, 110, 0.15); color: var(--accent-gold); }
+.tag-mint { background: rgba(0, 184, 148, 0.15); color: var(--accent-mint); }
+
+/* ── Toast notification ── */
+.toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.toast-msg {
+  background: var(--bg-glass-strong);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  padding: 0.875rem 1.5rem;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-weight: 500;
+  box-shadow: var(--shadow-card);
+  animation: slideInRight 0.4s ease, fadeOut 0.4s 2.5s ease forwards;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.toast-msg.success { border-left: 3px solid var(--accent-mint); }
+.toast-msg.error { border-left: 3px solid var(--accent-coral); }
+.toast-msg.info { border-left: 3px solid var(--primary); }
+
+@keyframes fadeOut {
+  to { opacity: 0; transform: translateX(20px); }
+}
+
+/* ── Star Rating ── */
+.star-rating {
+  display: flex;
+  gap: 2px;
+  font-size: 0.75rem;
+}
+.star-rating .bi-star-fill { color: var(--accent-gold); }
+.star-rating .bi-star { color: var(--text-muted); }
+
+/* ── Divider ── */
+.section-divider {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border-glass), transparent);
+  margin: var(--space-2xl) 0;
+}
+
+/* ── Newsletter Section ── */
+.newsletter-section {
+  background: var(--bg-glass);
+  backdrop-filter: blur(15px);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-xl);
+  padding: var(--space-3xl) var(--space-xl);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.newsletter-section::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at center, rgba(108, 92, 231, 0.08) 0%, transparent 60%);
+  pointer-events: none;
+}
+.newsletter-section h3 {
+  color: var(--text-primary);
+  margin-bottom: var(--space-sm);
+}
+.newsletter-section p {
+  color: var(--text-secondary);
+  margin-bottom: var(--space-xl);
+}
+.newsletter-section .input-group {
+  max-width: 500px;
+  margin: 0 auto;
+}
+.newsletter-section .form-control {
+  border-radius: var(--radius-full) 0 0 var(--radius-full) !important;
+  padding: 0.75rem 1.25rem;
+}
+.newsletter-section .btn {
+  border-radius: 0 var(--radius-full) var(--radius-full) 0 !important;
+  padding: 0.75rem 2rem !important;
+}

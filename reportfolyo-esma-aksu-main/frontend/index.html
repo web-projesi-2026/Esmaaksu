@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RafArası — Kitap Tutkunlarının Adresi</title>
+  <meta name="description" content="RafArası ile hayalindeki kitabı hemen bul. En geniş katalog, en uygun fiyatlar. Edebiyat, çocuk kitapları, sınav hazırlık ve daha fazlası.">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="assets/css/global.css">
+  <link rel="stylesheet" href="assets/css/layout.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+</head>
+<body>
+  <header class="site-header">
+    <nav class="navbar navbar-expand-lg sticky-top">
+      <div class="container">
+        <a class="navbar-brand" href="index.html">
+          <i class="bi bi-book-half me-2"></i>RafArası
+        </a>
+        <button class="btn btn-outline-secondary me-2 menu-btn d-lg-none">
+          <i class="bi bi-list"></i>
+        </button>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="mainNavbar">
+          <form class="d-flex ms-auto me-3" style="width:300px;">
+            <div class="input-group">
+              <input class="form-control" type="search" placeholder="Kitap, yazar veya kategori ara..." aria-label="Search" id="search-input">
+              <button class="btn btn-outline-secondary" type="submit"><i class="bi bi-search"></i></button>
+            </div>
+          </form>
+          <ul class="navbar-nav mb-2 mb-lg-0 align-items-center">
+            <li class="nav-item"><a class="nav-link" href="#" title="Favoriler"><i class="bi bi-heart"></i></a></li>
+            <li class="nav-item d-lg-none">
+              <a class="nav-link" href="login.html">Giriş Yap</a>
+            </li>
+            <li class="nav-item d-lg-none">
+              <a class="nav-link" href="register.html">Kayıt Ol</a>
+            </li>
+            <li class="nav-item d-none d-lg-block">
+              <a class="btn btn-outline-secondary me-2" href="login.html">Giriş Yap</a>
+            </li>
+            <li class="nav-item d-none d-lg-block">
+              <a class="btn btn-primary" href="register.html">Kayıt Ol</a>
+            </li>
+            <li class="nav-item position-relative ms-lg-3">
+              <a class="nav-link" href="cart.html" title="Sepet"><i class="bi bi-bag"></i></a>
+              <span class="cart-count position-absolute top-0 start-100 translate-middle badge rounded-pill">0</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <nav class="category-nav container mt-2 overflow-auto d-none d-lg-flex">
+      <a href="#">EDEBİYAT KİTAPLARI</a>
+      <a href="#">KIRTASİYE</a>
+      <a href="#">OKULA YARDIMCI</a>
+      <a href="#">SINAVLARA HAZIRLIK</a>
+      <a href="#">ÇOCUK KİTAPLARI</a>
+      <a href="#">KİTAP TAVSİYE</a>
+      <a href="#">TÜM KAMPANYALAR</a>
+      <span class="badge">ÇOK SATANLAR</span>
+    </nav>
+  </header>
+
+  <main class="container main">
+    <!-- Hero Section -->
+    <section class="hero" id="hero-section">
+      <div id="heroCarousel" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-inner">
+          <div class="carousel-item active">
+            <div style="min-height:420px; background: linear-gradient(135deg, #1A1932, #232147);"></div>
+            <div class="carousel-caption d-block">
+              <h2>Kitaplarla Dolu<br><span class="text-gradient">Sınırsız Dünyalar</span></h2>
+              <p>Binlerce kitap, tek bir adreste. Keşfetmeye başla.</p>
+              <a href="register.html" class="btn btn-primary btn-lg me-2">Hemen Kaydol</a>
+              <a href="login.html" class="btn btn-outline-primary btn-lg">Giriş Yap</a>
+            </div>
+          </div>
+          <div class="carousel-item">
+            <div style="min-height:420px; background: linear-gradient(135deg, #232147, #1A1932);"></div>
+            <div class="carousel-caption d-block">
+              <h2>Bu Haftanın<br><span class="text-gradient">En Çok Satanları</span></h2>
+              <p>En güncel ve popüler kitaplar raflarda seni bekliyor.</p>
+              <a href="#books-section" class="btn btn-primary btn-lg">Keşfet</a>
+            </div>
+          </div>
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Önceki</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Sonraki</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Features Strip -->
+    <section class="features-strip py-4 mt-4">
+      <div class="row g-3 text-center">
+        <div class="col-6 col-md-3">
+          <div class="glass-panel p-3" style="border-radius: var(--radius-md);">
+            <i class="bi bi-truck fs-4" style="color: var(--primary-light);"></i>
+            <p class="mb-0 mt-2" style="font-size:0.8rem; color: var(--text-secondary);">Ücretsiz Kargo</p>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="glass-panel p-3" style="border-radius: var(--radius-md);">
+            <i class="bi bi-shield-check fs-4" style="color: var(--accent-mint);"></i>
+            <p class="mb-0 mt-2" style="font-size:0.8rem; color: var(--text-secondary);">Güvenli Ödeme</p>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="glass-panel p-3" style="border-radius: var(--radius-md);">
+            <i class="bi bi-arrow-repeat fs-4" style="color: var(--accent-gold);"></i>
+            <p class="mb-0 mt-2" style="font-size:0.8rem; color: var(--text-secondary);">Kolay İade</p>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="glass-panel p-3" style="border-radius: var(--radius-md);">
+            <i class="bi bi-headset fs-4" style="color: var(--accent-coral);"></i>
+            <p class="mb-0 mt-2" style="font-size:0.8rem; color: var(--text-secondary);">7/24 Destek</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Books Section -->
+    <section class="mt-5" id="books-section">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="section-title mb-0">Öne Çıkan Kitaplar</h2>
+        <a href="#" style="color: var(--primary-light); font-size: 0.9rem; font-weight: 500;">
+          Tümünü Gör <i class="bi bi-arrow-right ms-1"></i>
+        </a>
+      </div>
+      <div class="books row g-3">
+        <!-- Book cards will be injected here by JS -->
+      </div>
+    </section>
+
+    <!-- Newsletter -->
+    <section class="newsletter-section mt-5 mb-4 reveal">
+      <h3><i class="bi bi-envelope-paper me-2"></i>Bültenimize Abone Olun</h3>
+      <p>Yeni kitaplar, kampanyalar ve özel fırsatlardan ilk siz haberdar olun.</p>
+      <div class="input-group">
+        <input type="email" class="form-control" placeholder="E-posta adresinizi girin...">
+        <button class="btn btn-primary" type="button">Abone Ol</button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bg-dark text-light pt-5">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 mb-4">
+          <h5><i class="bi bi-book-half me-2"></i>RafArası</h5>
+          <p>Kitap tutkunları için güvenilir bir platform. En geniş katalog, en uygun fiyatlarla hayalinizdeki kitaplara ulaşın.</p>
+          <div class="d-flex gap-3 mt-3">
+            <a href="#"><i class="bi bi-facebook"></i></a>
+            <a href="#"><i class="bi bi-twitter-x"></i></a>
+            <a href="#"><i class="bi bi-instagram"></i></a>
+            <a href="#"><i class="bi bi-youtube"></i></a>
+          </div>
+        </div>
+        <div class="col-md-2 mb-4">
+          <h5>Keşfet</h5>
+          <ul class="list-unstyled">
+            <li class="mb-2"><a href="#">Edebiyat</a></li>
+            <li class="mb-2"><a href="#">Çocuk</a></li>
+            <li class="mb-2"><a href="#">Sınav Hazırlık</a></li>
+            <li class="mb-2"><a href="#">Çok Satanlar</a></li>
+          </ul>
+        </div>
+        <div class="col-md-3 mb-4">
+          <h5>Yardım & İletişim</h5>
+          <ul class="list-unstyled">
+            <li class="mb-2"><a href="#">Sıkça Sorulan Sorular</a></li>
+            <li class="mb-2"><a href="#">Canlı Destek</a></li>
+            <li class="mb-2"><a href="#">Bize Ulaşın</a></li>
+            <li class="mb-2"><a href="#">Kargo Takip</a></li>
+          </ul>
+        </div>
+        <div class="col-md-3 mb-4">
+          <h5>İletişim</h5>
+          <ul class="list-unstyled" style="color: var(--text-secondary);">
+            <li class="mb-2"><i class="bi bi-geo-alt me-2"></i>İstanbul, Türkiye</li>
+            <li class="mb-2"><i class="bi bi-envelope me-2"></i>info@rafarasi.com</li>
+            <li class="mb-2"><i class="bi bi-telephone me-2"></i>+90 (212) 123 45 67</li>
+          </ul>
+        </div>
+      </div>
+      <hr>
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-center pb-3">
+        <p class="mb-0">&copy; 2026 RafArası. Tüm hakları saklıdır.</p>
+        <div class="d-flex gap-3 mt-2 mt-md-0" style="font-size: 0.8rem;">
+          <a href="#">Gizlilik Politikası</a>
+          <a href="#">Kullanım Şartları</a>
+          <a href="#">Çerez Politikası</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Toast container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/pages/main.js"></script>
+</body>
+</html>

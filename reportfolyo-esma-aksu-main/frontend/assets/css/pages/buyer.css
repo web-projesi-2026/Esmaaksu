@@ -1,0 +1,12 @@
+/* Buyer dashboard styles */
+
+.buyer-dashboard h2 {
+  color: var(--text-primary);
+  margin-bottom: var(--space-lg);
+}
+
+#buyer-books .card .card-img-top,
+#buyer-books .card img {
+  height: 200px;
+  object-fit: cover;
+}
