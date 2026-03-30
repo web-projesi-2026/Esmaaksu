@@ -45,47 +45,29 @@
         <h2>Giriş Yap</h2>
         <p class="auth-subtitle">Hesabınıza giriş yaparak devam edin</p>
 
-        <div class="role-select btn-group w-100" role="group">
-          <button type="button" data-role="buyer" class="btn btn-outline-primary active">
-            <i class="bi bi-bag me-1"></i>Alıcı
-          </button>
-          <button type="button" data-role="seller" class="btn btn-outline-primary">
-            <i class="bi bi-shop me-1"></i>Satıcı
-          </button>
-        </div>
-
         <form id="login-form">
-          <div class="mb-3 input-group">
-            <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-            <input type="email" id="email" name="email" class="form-control" placeholder="E-posta adresiniz" required>
+          <div class="mb-3">
+            <label for="email" class="form-label text-start d-block mb-2">E-posta Adresi</label>
+            <input type="email" id="email" name="email" class="form-control rounded-pill px-3 py-2" placeholder="ornek@mail.com" required>
           </div>
-          <div class="mb-3 input-group">
-            <span class="input-group-text"><i class="bi bi-lock"></i></span>
-            <input type="password" id="password" name="password" class="form-control" placeholder="Şifreniz" required>
+          <div class="mb-4">
+            <label for="password" class="form-label text-start d-block mb-2">Şifre</label>
+            <input type="password" id="password" name="password" class="form-control rounded-pill px-3 py-2" placeholder="••••••••" required>
           </div>
-          <div class="d-flex justify-content-between align-items-center mb-3">
+          <div class="d-flex justify-content-between align-items-center mb-4">
             <div class="form-check">
               <input class="form-check-input" type="checkbox" id="remember-me" style="background: var(--bg-glass); border-color: var(--border-glass);">
-              <label class="form-check-label" for="remember-me" style="font-size:0.8rem; color: var(--text-muted);">Beni hatırla</label>
+              <label class="form-check-label" for="remember-me" style="font-size:0.85rem; color: var(--text-muted);">Beni Hatırla</label>
             </div>
-            <a href="#" style="font-size:0.8rem; color: var(--primary-light);">Şifremi unuttum</a>
+            <a href="#" style="font-size:0.85rem; color: var(--text-secondary); text-decoration: none;">Şifremi Unuttum</a>
           </div>
-          <button type="submit" class="btn btn-primary w-100">
-            <i class="bi bi-box-arrow-in-right me-1"></i>Giriş Yap
+          <button type="submit" class="btn btn-primary w-100 rounded-pill py-2" style="font-size: 1.1rem; font-weight: 700; text-transform: uppercase;">
+            GİRİŞ YAP
           </button>
-
-          <div class="admin-hint">
-            <i class="bi bi-shield-lock me-1"></i>Yönetici girişi: e-posta ve şifreye <strong>admin</strong> yazın.
-          </div>
-
-          <div class="social-divider">veya</div>
-
-          <div class="social-buttons">
-            <button type="button" class="btn-social"><i class="bi bi-google"></i> Google</button>
-            <button type="button" class="btn-social"><i class="bi bi-facebook"></i> Facebook</button>
-          </div>
-
-          <p class="auth-link">Hesabınız yok mu? <a href="register.html">Kayıt olun</a></p>
+          
+          <p class="auth-link mt-4 text-center" style="font-size: 0.9rem;">
+            <span style="color: var(--text-muted);">Hesabın yok mu?</span> <a href="register.html" style="color: var(--accent-coral); font-weight: 600; text-decoration: none;">Hemen Kayıt Ol</a>
+          </p>
         </form>
       </div>
     </div>

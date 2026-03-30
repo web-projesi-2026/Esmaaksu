@@ -18,18 +18,6 @@ document.addEventListener('DOMContentLoaded', () => {
     return c;
   }
 
-  // Role selection
-  const roleButtons = document.querySelectorAll('.role-select button');
-  let role = 'buyer';
-
-  roleButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      roleButtons.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      role = btn.dataset.role;
-    });
-  });
-
   // Login form
   const loginForm = document.getElementById('login-form');
   if (loginForm) {
@@ -43,16 +31,16 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      // Admin override
-      if (email === 'admin' && password === 'admin') {
+      // Mock Role Check based on email
+      if (email === 'admin@gmail.com' && password === 'admin') {
         showToast('Yönetici girişi başarılı!', 'success');
         setTimeout(() => window.location.href = 'admin.html', 800);
-      } else if (role === 'buyer') {
-        showToast('Giriş başarılı! Yönlendiriliyorsunuz...', 'success');
-        setTimeout(() => window.location.href = 'buyer.html', 800);
-      } else if (role === 'seller') {
-        showToast('Giriş başarılı! Yönlendiriliyorsunuz...', 'success');
+      } else if (email.toLowerCase().includes('satici')) {
+        showToast('Satıcı girişi başarılı! Yönlendiriliyorsunuz...', 'success');
         setTimeout(() => window.location.href = 'seller.html', 800);
+      } else {
+        showToast('Giriş başarılı! Ana sayfaya yönlendiriliyorsunuz...', 'success');
+        setTimeout(() => window.location.href = 'index.html', 800);
       }
     });
   }
@@ -76,10 +64,5 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Social button handlers (visual only)
-  document.querySelectorAll('.btn-social').forEach(btn => {
-    btn.addEventListener('click', () => {
-      showToast('Sosyal giriş yakında aktif olacak!', 'info');
-    });
-  });
+
 });

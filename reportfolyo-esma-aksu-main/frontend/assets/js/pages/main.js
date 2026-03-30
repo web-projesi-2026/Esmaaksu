@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ── Load books ──
-  if (typeof getMockBooks === 'function') {
+  if (typeof getBooks === 'function' || typeof getMockBooks === 'function') {
     let allBooks = [];
     const container = document.querySelector('.books');
     
@@ -126,7 +126,9 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     };
 
-    getMockBooks().then(books => {
+    // Backend API veya fallback mock veri
+    const fetchFn = typeof getBooks === 'function' ? getBooks : getMockBooks;
+    fetchFn().then(books => {
       allBooks = books;
       render(allBooks);
     });
