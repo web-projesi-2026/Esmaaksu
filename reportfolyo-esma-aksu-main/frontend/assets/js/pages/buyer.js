@@ -48,11 +48,15 @@ document.addEventListener('DOMContentLoaded', () => {
         recommended.forEach((b, idx) => {
           const col = document.createElement('div');
           col.className = 'col-sm-6 col-md-4 col-lg-3';
+          const imageHTML = b.image 
+            ? `<img src="${b.image}" style="width:100%; height:100%; object-fit:cover;" onerror="this.src='/assets/images/book-placeholder.png'" />` 
+            : `<div style="width:100%; height:100%; ${bookGradient(b.id)}; display:flex; align-items:center; justify-content:center;"><i class="bi bi-book" style="font-size:3rem; color:rgba(255,255,255,0.3);"></i></div>`;
+
           col.innerHTML = `
             <div class="card h-100">
-              <div style="height:180px; ${bookGradient(b.id)}; display:flex; align-items:center; justify-content:center; position:relative;">
-                <i class="bi bi-book" style="font-size:3rem; color:rgba(255,255,255,0.3);"></i>
-                <div class="price-tag">${b.price}</div>
+              <div style="height:180px; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden;">
+                ${imageHTML}
+                <div class="price-tag">${b.price} TL</div>
               </div>
               <div class="card-body d-flex flex-column">
                 <h5 class="card-title" style="font-size:0.9rem;">${b.title}</h5>

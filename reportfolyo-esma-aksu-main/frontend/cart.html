@@ -177,8 +177,11 @@
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="mainNavbar">
-          <form class="d-flex ms-auto me-3" style="width:300px;">
-            <input class="form-control" type="search" placeholder="Kitap ara..." style="border-radius: var(--radius-full);">
+          <form class="d-flex ms-auto me-3 search-form">
+            <div class="input-group">
+              <input class="form-control" type="search" placeholder="Kitap ara..." aria-label="Search">
+              <button class="btn btn-outline-secondary search-btn" type="submit"><i class="bi bi-search"></i></button>
+            </div>
           </form>
           <ul class="navbar-nav mb-2 mb-lg-0 align-items-center">
             <li class="nav-item"><a class="nav-link" href="login.html"><i class="bi bi-person"></i></a></li>

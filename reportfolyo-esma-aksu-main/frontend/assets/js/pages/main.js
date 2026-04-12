@@ -1,12 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-  // ── Menu toggle ──
-  const menuBtn = document.querySelector('.menu-btn');
-  if (menuBtn) {
-    menuBtn.addEventListener('click', () => {
-      const cat = document.querySelector('.category-nav');
-      if (cat) cat.classList.toggle('d-none');
-    });
-  }
+  // ── Menu toggle removed ──
 
   // ── Navbar shrink on scroll ──
   const header = document.querySelector('.navbar');
@@ -85,12 +78,16 @@ document.addEventListener('DOMContentLoaded', () => {
             ? '<span class="tag tag-gold" style="position:absolute;top:12px;left:12px;z-index:2;">Çok Satan</span>'
             : '';
 
+        const imageHTML = b.image 
+          ? `<img src="${b.image}" style="width:100%; height:100%; object-fit:cover;" onerror="this.src='/assets/images/book-placeholder.png'" />` 
+          : `<div style="width:100%; height:100%; ${bookGradient(b.id)} display:flex; align-items:center; justify-content:center;"><i class="bi bi-book" style="font-size:4rem; color:rgba(255,255,255,0.3);"></i></div>`;
+
         col.innerHTML = `
           <div class="card h-100">
-            <div style="height:220px; ${bookGradient(b.id)} display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden;">
-              <i class="bi bi-book" style="font-size:4rem; color:rgba(255,255,255,0.3);"></i>
+            <div style="height:220px; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden;">
+              ${imageHTML}
               ${badgeHTML}
-              <div class="price-tag">${b.price}</div>
+              <div class="price-tag">${b.price} TL</div>
             </div>
             <div class="card-overlay">
               <button class="btn btn-sm add-to-cart-btn" data-id="${b.id}">

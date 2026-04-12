@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Login form
   const loginForm = document.getElementById('login-form');
   if (loginForm) {
-    loginForm.addEventListener('submit', e => {
+    loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = loginForm.email.value.trim();
       const password = loginForm.password.value.trim();
@@ -43,16 +43,41 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      // Admin override
-      if (email === 'admin' && password === 'admin') {
+      // Hardcoded Admin panel
+      if (email === 'admin@rafarasi.com' && password === 'admin') {
         showToast('Yönetici girişi başarılı!', 'success');
+        localStorage.setItem('userId', 'admin');
         setTimeout(() => window.location.href = 'admin.html', 800);
-      } else if (role === 'buyer') {
-        showToast('Giriş başarılı! Yönlendiriliyorsunuz...', 'success');
-        setTimeout(() => window.location.href = 'buyer.html', 800);
-      } else if (role === 'seller') {
-        showToast('Giriş başarılı! Yönlendiriliyorsunuz...', 'success');
-        setTimeout(() => window.location.href = 'seller.html', 800);
+        return;
+      } 
+      
+      try {
+        const response = await fetch('http://localhost:3000/api/users/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        
+        const data = await response.json();
+        if (response.ok) {
+          showToast(`${data.name} olarak giriş yapıldı. Yönlendiriliyorsunuz...`, 'success');
+          // Giriş yapan kullanıcının ID ve rol bilgisini localStorage'a kaydediyoruz
+          localStorage.setItem('userId', data._id);
+          localStorage.setItem('userRole', data.role);
+          
+          if (data.role === 'admin') {
+             setTimeout(() => window.location.href = 'admin.html', 1500);
+          } else if (data.role === 'seller') {
+             setTimeout(() => window.location.href = 'seller.html', 1500);
+          } else {
+             setTimeout(() => window.location.href = 'buyer.html', 1500);
+          }
+        } else {
+          showToast(data.message || 'Giriş başarısız.', 'error');
+        }
+      } catch(error) {
+        console.error(error);
+        showToast('Sunucu ile iletişim kurulamadı.', 'error');
       }
     });
   }
@@ -60,19 +85,42 @@ document.addEventListener('DOMContentLoaded', () => {
   // Register form
   const registerForm = document.getElementById('register-form');
   if (registerForm) {
-    registerForm.addEventListener('submit', e => {
+    registerForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const name = registerForm.name.value.trim();
-      const email = registerForm.email.value.trim();
-      const password = registerForm.password.value.trim();
+      
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const passwordConfirm = document.getElementById('password-confirm').value.trim();
+
+      if (password !== passwordConfirm) {
+         showToast('Şifreler eşleşmiyor.', 'error');
+         return;
+      }
 
       if (!name || !email || !password) {
         showToast('Lütfen tüm alanları doldurun.', 'error');
         return;
       }
 
-      showToast(`Hoşgeldiniz, ${name}! Kayıt başarılı. Giriş sayfasına yönlendiriliyorsunuz...`, 'success');
-      setTimeout(() => window.location.href = 'login.html', 1500);
+      try {
+        const response = await fetch('http://localhost:3000/api/users/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, password, role })
+        });
+        
+        const data = await response.json();
+        if (response.ok) {
+          showToast(`Hoşgeldiniz, ${data.name}! Kayıt başarılı. Giriş sayfasına yönlendiriliyorsunuz...`, 'success');
+          setTimeout(() => window.location.href = 'login.html', 1500);
+        } else {
+          showToast(data.message || 'Kayıt başarısız.', 'error');
+        }
+      } catch(error) {
+         console.error(error);
+         showToast('Sunucu ile iletişim kurulamadı.', 'error');
+      }
     });
   }
 

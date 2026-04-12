@@ -227,6 +227,13 @@ h3 { font-size: clamp(1.125rem, 2vw, 1.5rem); }
 }
 
 /* Search bar in navbar */
+.navbar .search-form {
+  width: 250px;
+  transition: width var(--transition-smooth);
+}
+.navbar .search-form:focus-within {
+  width: 300px;
+}
 .navbar .form-control {
   background: var(--bg-glass) !important;
   border: 1px solid var(--border-glass) !important;
@@ -235,7 +242,7 @@ h3 { font-size: clamp(1.125rem, 2vw, 1.5rem); }
   padding: 0.5rem 1rem;
   font-size: 0.85rem;
   transition: all var(--transition-smooth);
-  width: 250px;
+  width: 100%;
   backdrop-filter: blur(10px);
 }
 .navbar .form-control::placeholder {
@@ -245,17 +252,22 @@ h3 { font-size: clamp(1.125rem, 2vw, 1.5rem); }
   border-color: var(--primary) !important;
   box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.15), 0 0 20px rgba(108, 92, 231, 0.1) !important;
   background: var(--bg-glass-strong) !important;
-  width: 300px;
 }
-.navbar .input-group .btn {
+.navbar .input-group {
+  flex-wrap: nowrap !important;
+  width: 100%;
+}
+.navbar .input-group .btn.search-btn {
   background: var(--bg-glass) !important;
   border: 1px solid var(--border-glass) !important;
   border-left: none !important;
   color: var(--text-secondary) !important;
   border-radius: 0 var(--radius-full) var(--radius-full) 0 !important;
+  transition: all var(--transition-smooth);
 }
 .navbar .input-group .form-control {
   border-radius: var(--radius-full) 0 0 var(--radius-full) !important;
+  border-right: none !important;
 }
 
 /* Navbar action buttons */

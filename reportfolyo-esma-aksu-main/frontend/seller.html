@@ -111,21 +111,29 @@
               </div>
               <div class="col-md-4">
                 <label for="category" class="form-label">Kategori</label>
-                <select id="category" class="form-control" style="color: var(--text-primary);">
+                <select id="category" name="category" class="form-control" style="color: var(--text-primary);">
                   <option value="">Seçiniz</option>
-                  <option>Edebiyat</option>
-                  <option>Çocuk</option>
-                  <option>Sınav Hazırlık</option>
-                  <option>Kırtasiye</option>
+                  <option value="Edebiyat">Edebiyat</option>
+                  <option value="Çocuk">Çocuk</option>
+                  <option value="Sınav Hazırlık">Sınav Hazırlık</option>
+                  <option value="Kırtasiye">Kırtasiye</option>
                 </select>
               </div>
               <div class="col-md-4">
                 <label for="stock" class="form-label">Stok Adedi</label>
                 <input type="number" id="stock" class="form-control" placeholder="0">
               </div>
-              <div class="col-12">
+              <div class="col-md-6">
+                <label for="imageUrl" class="form-label">Kitap Kapağı (Resim URL)</label>
+                <input type="url" id="imageUrl" name="imageUrl" class="form-control" placeholder="https://resim-adresi...">
+              </div>
+              <div class="col-md-6">
+                <label for="imageFile" class="form-label">Veya Bilgisayardan Seç</label>
+                <input type="file" id="imageFile" name="imageFile" class="form-control" accept="image/*">
+              </div>
+              <div class="col-12 mt-3">
                 <label for="description" class="form-label">Açıklama</label>
-                <textarea id="description" class="form-control" rows="3" placeholder="Kitap hakkında kısa bir açıklama yazın..." style="resize: none;"></textarea>
+                <textarea id="description" name="description" class="form-control" rows="3" placeholder="Kitap hakkında kısa bir açıklama yazın..." style="resize: none;"></textarea>
               </div>
               <div class="col-12">
                 <button type="submit" class="btn btn-primary">
