@@ -821,6 +821,44 @@ input, select, textarea {
   .hero .carousel-caption {
     padding: 0 1rem;
   }
+  .section-title {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .hero .carousel-item {
+    min-height: 240px;
+  }
+  .hero .carousel-caption h2 {
+    font-size: 1.5rem;
+    margin-bottom: var(--space-sm);
+  }
+  .hero .carousel-caption p {
+    font-size: 0.9rem;
+    margin-bottom: var(--space-md);
+  }
+  .hero .carousel-caption .btn {
+    padding: 0.5rem 1rem !important;
+    font-size: 0.8rem !important;
+  }
+  .newsletter-section {
+    padding: var(--space-xl) var(--space-md);
+  }
+  .newsletter-section .input-group {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .newsletter-section .form-control {
+    border-radius: var(--radius-full) !important;
+  }
+  .newsletter-section .btn {
+    border-radius: var(--radius-full) !important;
+    width: 100%;
+  }
+  .features-strip .col-6 {
+    width: 100%;
+  }
 }
 
 /* ── Admin dashboard heading compatibility ── */
