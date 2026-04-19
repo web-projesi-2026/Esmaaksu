@@ -1,0 +1,24 @@
+# Bağimliliklar
+node_modules/
+
+# Ortam değişkenleri
+.env
+
+# Yüklenen dosyalar (fotoğraflar vs, bunlar git'e gitmemeli)
+backend/uploads/
+uploads/
+
+# İşletim sistemi kalıntıları
+.DS_Store
+Thumbs.db
+
+# Log dosyaları
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs
+*.log
+
+# Editör kalıntıları
+.vscode/
+.idea/
