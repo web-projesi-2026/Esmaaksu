@@ -1,6 +1,6 @@
 # Esmaaksu Projesi
 
-Bu proje, alıcı (buyer), satıcı (seller) ve yönetici (admin) rollerine sahip tam yığın (full-stack) bir web uygulamasıdır.
+Bu proje, alıcı (buyer), satıcı (seller) ve yönetici (admin) rollerine sahip tam yığın (full-stack) bir web uygulamasıdır..
 
 ## Proje Yapısı
 
