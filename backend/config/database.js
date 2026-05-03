@@ -1,28 +1,31 @@
-const mongoose = require('mongoose');
-const User = require('../models/User'); // Model importu eklendi
+const mysql = require('mysql2');
+const dotenv = require('dotenv');
 
-const connectDB = async () => {
-  try {
-    const conn = await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/esmaaksu_db');
-    console.log(`MongoDB Bağlantısı Başarılı: ${conn.connection.host}`);
+dotenv.config({ path: './config/config.env' });
 
-    // Varsayılan Test Kullanıcılarını Oluştur
-    const sellerExists = await User.findOne({ email: 'satici@rafarasi.com' });
-    if (!sellerExists) {
-      await User.create({
-        _id: '609b5f5b5f5b5f5b5f5b5f5b', // String version is automatically cast to ObjectId implicitly if needed
-        name: 'Örnek Satıcı',
-        email: 'satici@rafarasi.com',
-        password: '123',
-        role: 'seller'
-      });
-      console.log('Test Satıcısı oluşturuldu (satici@rafarasi.com - Şifre: 123)');
-    }
+// MySQL Bağlantı Havuzu (Pool) Oluşturma
+const pool = mysql.createPool({
+  host: process.env.DB_HOST || 'localhost',
+  user: process.env.DB_USER || 'root',
+  password: process.env.DB_PASSWORD || '',
+  database: process.env.DB_NAME || 'esmaaksu_db',
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
+});
 
-  } catch (error) {
-    console.error(`Hata: ${error.message}`);
-    process.exit(1);
+// Promise desteği ekleyelim
+const promisePool = pool.promise();
+
+// Bağlantı Testi
+pool.getConnection((err, connection) => {
+  if (err) {
+    console.error('MySQL Bağlantı Hatası:', err.message);
+    console.log('Lütfen XAMPP/WAMP üzerinden MySQL servisinin açık olduğundan emin olun.');
+  } else {
+    console.log('MySQL (phpMyAdmin) Bağlantısı Başarılı!');
+    connection.release();
   }
-};
+});
 
-module.exports = connectDB;
+module.exports = promisePool;

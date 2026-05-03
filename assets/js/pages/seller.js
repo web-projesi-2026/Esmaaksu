@@ -1,5 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
-  // Toast helper
+  const API_URL = 'http://localhost:3000/api/books';
+  const sellerId = localStorage.getItem('userId') || 1;
+
+  // Toast Helper
   function showToast(message, type = 'info') {
     let container = document.getElementById('toast-container');
     if (!container) {
@@ -13,124 +16,235 @@ document.addEventListener('DOMContentLoaded', () => {
     const icons = { success: 'bi-check-circle-fill', error: 'bi-x-circle-fill', info: 'bi-info-circle-fill' };
     toast.innerHTML = `<i class="bi ${icons[type] || icons.info}"></i> ${message}`;
     container.appendChild(toast);
-    setTimeout(() => toast.remove(), 3000);
+    setTimeout(() => toast.remove(), 3500);
   }
 
-  function bookGradient(index) {
-    const gradients = [
-      'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-      'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-      'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
-    ];
-    return gradients[index % gradients.length];
-  }
+  const tableBody = document.getElementById('seller-books-table');
+  const modal = document.getElementById('book-modal');
+  const form = document.getElementById('seller-book-form');
+  const modalTitle = document.getElementById('modal-title');
+  const submitBtn = document.getElementById('modal-submit-btn');
+  const statTotal = document.getElementById('stat-total');
+  const statActive = document.getElementById('stat-active');
 
-document.addEventListener('DOMContentLoaded', () => {
-  // Toast helper
-  function showToast(message, type = 'info') {
-    let container = document.getElementById('toast-container');
-    if (!container) {
-      container = document.createElement('div');
-      container.className = 'toast-container';
-      container.id = 'toast-container';
-      document.body.appendChild(container);
-    }
-    const toast = document.createElement('div');
-    toast.className = `toast-msg ${type}`;
-    const icons = { success: 'bi-check-circle-fill', error: 'bi-x-circle-fill', info: 'bi-info-circle-fill' };
-    toast.innerHTML = `<i class="bi ${icons[type] || icons.info}"></i> ${message}`;
-    container.appendChild(toast);
-    setTimeout(() => toast.remove(), 3000);
-  }
+  let editingBookId = null;
 
-  // Check login
-  let userId = localStorage.getItem('userId');
-  if (!userId) {
-    // Demo mode: Create an anonymous seller object for the demo if user is not logged in
-    userId = '609b5f5b5f5b5f5b5f5b5f5b'; // Fake admin/seller id as fallback
-  }
-
-  // Load seller's books
-  const container = document.getElementById('seller-books');
+  // ==============================
+  // Kitapları Yükle (GET)
+  // ==============================
   async function loadMyBooks() {
-    if (!container) return;
+    if (!tableBody) return;
+    tableBody.innerHTML = '<tr><td colspan="6" class="text-center py-4" style="color:#888;">Yükleniyor...</td></tr>';
+
     try {
-      const dbBooks = await getBooks(); // or fetch(`/api/books/seller/${userId}`) depending on auth
-      
-      container.innerHTML = '';
-      if(dbBooks.length === 0) {
-         container.innerHTML = '<p>Henüz kitap eklemediniz.</p>';
-         return;
+      const res = await fetch(`${API_URL}/seller/${sellerId}`);
+      const books = await res.json();
+
+      // İstatistikleri güncelle
+      if (statTotal) statTotal.textContent = books.length;
+      if (statActive) statActive.textContent = books.length;
+
+      if (books.length === 0) {
+        tableBody.innerHTML = `
+          <tr>
+            <td colspan="6" class="text-center py-5" style="color:#888;">
+              <i class="bi bi-inbox" style="font-size:2rem; display:block; margin-bottom:10px;"></i>
+              Henüz kitap eklemediniz. "Yeni Kitap Ekle" butonuna tıklayın.
+            </td>
+          </tr>`;
+        return;
       }
-      
-      dbBooks.forEach((b, idx) => {
-        let imageSrc = '/assets/images/book-placeholder.png';
-        if (b.image) {
-          imageSrc = b.image.startsWith('http') || b.image.startsWith('/uploads') ? b.image : `/${b.image}`;
-        }
-        
-        const col = document.createElement('div');
-        col.className = 'col-sm-6 col-md-4';
-        col.innerHTML = `
-          <div class="card h-100">
-            <div style="height:180px; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden;">
-              <img src="${imageSrc}" style="width:100%; height:100%; object-fit:cover;" onerror="this.src='/assets/images/book-placeholder.png'" />
-              <div class="price-tag" style="position:absolute; bottom:10px; right:10px; background:rgba(0,0,0,0.6); color:white; padding:4px 8px; border-radius:4px;">${b.price} TL</div>
+
+      tableBody.innerHTML = '';
+      books.forEach(book => {
+        const row = document.createElement('tr');
+        const img = book.image || 'assets/images/book-placeholder.png';
+
+        row.innerHTML = `
+          <td><img src="${img}" class="book-thumb" onerror="this.style.display='none'"></td>
+          <td>
+            <span class="fw-bold">${book.title}</span><br>
+            <small style="color:#888;">${book.author}</small>
+          </td>
+          <td class="text-warning fw-bold">${Number(book.price).toFixed(2)} TL</td>
+          <td><span class="badge bg-secondary" style="font-size:0.75rem;">${book.category || '—'}</span></td>
+          <td><span class="badge-status badge-active">AKTİF</span></td>
+          <td>
+            <div class="action-btns">
+              <button class="action-btn edit-action" data-id="${book.id}" title="Düzenle"><i class="bi bi-pencil"></i></button>
+              <button class="action-btn delete-action" data-id="${book.id}" title="Sil"><i class="bi bi-trash-fill"></i></button>
             </div>
-            <div class="card-body d-flex flex-column">
-              <h5 class="card-title" style="font-size:0.9rem;">${b.title}</h5>
-              <p class="card-text" style="font-size:0.8rem;">${b.author}</p>
-              <div class="d-flex gap-2 mt-auto">
-                <button class="btn btn-outline-primary btn-sm flex-fill"><i class="bi bi-pencil me-1"></i>Düzenle</button>
-                <button class="btn btn-sm flex-fill delete-book" data-id="${b._id}" style="border:1px solid var(--accent-coral); color: var(--accent-coral);"><i class="bi bi-trash3 me-1"></i>Sil</button>
-              </div>
-            </div>
-          </div>
+          </td>
         `;
-        container.appendChild(col);
+        tableBody.appendChild(row);
       });
-    } catch (error) {
-      console.error(error);
+
+      attachListeners(books);
+    } catch (err) {
+      console.error('Kitaplar yüklenirken hata:', err);
+      // API yoksa books.json'dan dene (fallback)
+      try {
+        const res2 = await fetch('books.json');
+        const fallbackBooks = await res2.json();
+        renderFallback(fallbackBooks);
+      } catch {
+        tableBody.innerHTML = '<tr><td colspan="6" class="text-center py-4" style="color:#e74c3c;">Bağlantı hatası.</td></tr>';
+      }
     }
   }
 
-  loadMyBooks();
+  function renderFallback(books) {
+    if (statTotal) statTotal.textContent = books.length;
+    if (statActive) statActive.textContent = books.length;
+    tableBody.innerHTML = '';
 
-  // Add book form
-  const form = document.getElementById('add-book-form');
-  if (form) {
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      const formData = new FormData(form);
-      formData.append('seller', userId); // For the API
+    books.forEach(book => {
+      const row = document.createElement('tr');
+      const img = book.image || 'assets/images/book-placeholder.png';
+      row.innerHTML = `
+        <td><img src="${img}" class="book-thumb" onerror="this.style.display='none'"></td>
+        <td><span class="fw-bold">${book.title}</span><br><small style="color:#888;">${book.author}</small></td>
+        <td class="text-warning fw-bold">${Number(book.price).toFixed(2)} TL</td>
+        <td><span class="badge bg-secondary" style="font-size:0.75rem;">${book.category || '—'}</span></td>
+        <td><span class="badge-status badge-active">AKTİF</span></td>
+        <td>
+          <div class="action-btns">
+            <button class="action-btn edit-action" data-id="${book.id}" title="Düzenle"><i class="bi bi-pencil"></i></button>
+            <button class="action-btn delete-action" data-id="${book.id}" title="Sil"><i class="bi bi-trash-fill"></i></button>
+          </div>
+        </td>
+      `;
+      tableBody.appendChild(row);
+    });
 
-      // But dummy ID is not valid object id if not present in DB.
-      // So we will just hit the endpoint directly.
-      try {
-        const response = await fetch('http://localhost:3000/api/books', {
-          method: 'POST',
-          body: formData
-        });
-        
-        const data = await response.json();
-        
-        if (response.ok) {
-          showToast(`"${data.title}" başarıyla eklendi!`, 'success');
-          form.reset();
-          loadMyBooks();
-        } else {
-          // Gelen hata 'seller' nesnesi mongo'da bulunamadığı içinse geçici kullanıcı oluşturalım:
-          if(data.message && data.message.includes('Cast to ObjectId failed for value')) {
-              showToast('Lütfen önce sisteme Giriş Yapın (Kayıtlı Satıcı).', 'error');
+    attachListeners(books);
+  }
+
+  // ==============================
+  // Düzenle ve Sil Butonları
+  // ==============================
+  function attachListeners(books) {
+    // SİL
+    document.querySelectorAll('.delete-action').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id = btn.dataset.id;
+        if (!confirm('Bu kitabı silmek istediğinize emin misiniz?')) return;
+
+        try {
+          const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+          if (res.ok) {
+            showToast('Kitap başarıyla silindi!', 'success');
+            loadMyBooks();
           } else {
-              showToast('Hata: ' + data.message, 'error');
+            showToast('Silme sırasında hata oluştu.', 'error');
           }
+        } catch {
+          showToast('Sunucu bağlantı hatası.', 'error');
         }
-      } catch (error) {
-        showToast('Bağlantı hatası.', 'error');
-      }
+      });
+    });
+
+    // DÜZENLE
+    document.querySelectorAll('.edit-action').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = parseInt(btn.dataset.id);
+        const book = books.find(b => b.id === id);
+        if (!book) return;
+
+        editingBookId = id;
+        modalTitle.textContent = '📝 Kitabı Düzenle';
+        submitBtn.textContent = 'GÜNCELLE';
+        submitBtn.classList.remove('btn-primary');
+        submitBtn.classList.add('btn-success');
+
+        form.title.value = book.title;
+        form.author.value = book.author;
+        form.price.value = book.price;
+        form.category.value = book.category || 'Edebiyat';
+        form.imageUrl.value = book.image || '';
+
+        openModal();
+      });
     });
   }
+
+  // ==============================
+  // Modal İşlemleri
+  // ==============================
+  function openModal() {
+    modal.style.display = 'flex';
+  }
+
+  function closeModal() {
+    modal.style.display = 'none';
+    form.reset();
+    editingBookId = null;
+    modalTitle.textContent = '📚 Yeni Kitap Ekle';
+    submitBtn.textContent = 'KAYDET';
+    submitBtn.classList.remove('btn-success');
+    submitBtn.classList.add('btn-primary');
+  }
+
+  document.getElementById('btn-add-new').addEventListener('click', () => {
+    closeModal(); // reset first
+    openModal();
+  });
+  document.getElementById('open-add-modal').addEventListener('click', (e) => { e.preventDefault(); closeModal(); openModal(); });
+  document.getElementById('close-modal').addEventListener('click', closeModal);
+  document.querySelector('.table-header .btn').addEventListener('click', () => { closeModal(); openModal(); });
+  modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+
+  // ==============================
+  // Form Submit (Ekle / Güncelle)
+  // ==============================
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const bookData = {
+      title: form.title.value.trim(),
+      author: form.author.value.trim(),
+      price: parseFloat(form.price.value),
+      category: form.category.value,
+      imageUrl: form.imageUrl.value.trim(),
+      seller: sellerId
+    };
+
+    if (!bookData.title || !bookData.author || !bookData.price) {
+      showToast('Lütfen tüm zorunlu alanları doldurun.', 'error');
+      return;
+    }
+
+    try {
+      let res;
+      if (editingBookId) {
+        // GÜNCELLE (PUT)
+        res = await fetch(`${API_URL}/${editingBookId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(bookData)
+        });
+      } else {
+        // EKLE (POST)
+        res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(bookData)
+        });
+      }
+
+      if (res.ok) {
+        showToast(editingBookId ? `"${bookData.title}" güncellendi!` : `"${bookData.title}" eklendi!`, 'success');
+        closeModal();
+        loadMyBooks();
+      } else {
+        const data = await res.json();
+        showToast('Hata: ' + (data.message || 'Bilinmeyen hata'), 'error');
+      }
+    } catch {
+      showToast('Sunucu bağlantı hatası. Lütfen backend çalıştığından emin olun.', 'error');
+    }
+  });
+
+  // Başlat
+  loadMyBooks();
 });

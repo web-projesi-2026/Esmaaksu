@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RafArası — Favorilerim</title>
+  <meta name="description" content="Favori kitaplarınızı yönetin ve koleksiyonlarınızı inceleyin.">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="assets/css/global.css">
+  <link rel="stylesheet" href="assets/css/layout.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+  <link rel="stylesheet" href="assets/css/pages/buyer.css">
+  <style>
+    .fav-tabs {
+      display: flex;
+      gap: 30px;
+      border-bottom: 2px solid var(--border-glass);
+      margin-bottom: 30px;
+      padding-bottom: 10px;
+    }
+    .fav-tab {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s;
+      position: relative;
+    }
+    .fav-tab.active {
+      color: var(--accent-rose);
+    }
+    .fav-tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: -12px;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background-color: var(--accent-rose);
+    }
+    .fav-tab i { font-size: 1.4rem; }
+    
+    .empty-favs {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-muted);
+    }
+    .empty-favs i { font-size: 4rem; display: block; margin-bottom: 20px; opacity: 0.5; }
+
+    .back-btn {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-glass);
+      padding: 5px 15px;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      color: var(--text-primary);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <nav class="navbar navbar-expand-lg sticky-top">
+      <div class="container">
+        <a class="navbar-brand" href="index.html"><i class="bi bi-book-half me-2"></i>RafArası</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="mainNavbar">
+          <form class="d-flex ms-auto me-3 search-form">
+            <div class="input-group">
+              <input class="form-control" type="search" placeholder="Aradığınız ürünün adını yazınız..." aria-label="Search">
+              <button class="btn btn-outline-secondary search-btn" type="submit"><i class="bi bi-search"></i></button>
+            </div>
+          </form>
+          <ul class="navbar-nav mb-2 mb-lg-0 align-items-center">
+            <li class="nav-item"><a class="nav-link active" href="favorites.html"><i class="bi bi-heart-fill" style="color: var(--accent-rose);"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="buyer.html"><i class="bi bi-person"></i></a></li>
+            <li class="nav-item position-relative ms-2">
+              <a class="nav-link" href="cart.html"><i class="bi bi-bag"></i></a>
+              <span class="cart-count position-absolute top-0 start-100 translate-middle badge rounded-pill">0</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <main class="container main">
+    <div class="dashboard-layout mt-4">
+      <!-- Sidebar -->
+      <aside class="dashboard-sidebar">
+        <div class="sidebar-header">
+          <div class="sidebar-avatar"><i class="bi bi-person"></i></div>
+          <div class="sidebar-name">Esma Aksu</div>
+          <div class="sidebar-role" style="font-size: 0.8rem; opacity: 0.7;">aksuesma508@gmail.com</div>
+          <a href="#" class="btn btn-outline-secondary btn-sm mt-3" style="width: 100%; border-radius: 20px; font-size: 0.8rem;">
+            <i class="bi bi-list me-1"></i> Hesabım
+          </a>
+        </div>
+        <ul class="sidebar-nav mt-3">
+          <li><a href="buyer.html"><i class="bi bi-person"></i> KİŞİSEL BİLGİLERİM</a></li>
+          <li><a href="#"><i class="bi bi-chat-dots"></i> MESAJLARIM</a></li>
+          <li class="mt-4"><a href="index.html" style="color: var(--text-primary);"><i class="bi bi-power"></i> ÇIKIŞ</a></li>
+        </ul>
+      </aside>
+
+      <!-- Content -->
+      <div class="dashboard-content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div class="fav-tabs">
+            <a href="#" class="fav-tab active"><i class="bi bi-heart-fill"></i> Favorilerim</a>
+            <a href="#" class="fav-tab"><i class="bi bi-collection"></i> Koleksiyonlarım</a>
+          </div>
+          <a href="javascript:history.back()" class="back-btn"><i class="bi bi-chevron-left"></i> GERİ</a>
+        </div>
+
+        <div id="favorites-container">
+          <!-- Favorited books will be loaded here -->
+          <div class="empty-favs" id="empty-message">
+            <i class="bi bi-heart"></i>
+            <h4>Henüz favori ürününüz bulunmuyor.</h4>
+            <p>Beğendiğiniz ürünleri favorilerinize ekleyerek burada görebilirsiniz.</p>
+            <a href="index.html" class="btn btn-primary mt-3">Alışverişe Başla</a>
+          </div>
+          <div class="row g-4" id="favorites-grid" style="display: none;">
+            <!-- Books injected here -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="bg-dark text-light pt-4 mt-5">
+    <div class="container text-center pb-3">
+      <p class="mb-0" style="color: var(--text-muted);">&copy; 2026 RafArası. Tüm hakları saklıdır.</p>
+    </div>
+  </footer>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+  <script src="assets/js/theme-toggle.js"></script>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/pages/favorites.js"></script>
+</body>
+</html>

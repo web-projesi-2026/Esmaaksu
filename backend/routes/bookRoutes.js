@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const Book = require('../models/Book');
+const pool = require('../config/database');
 const multer = require('multer');
 const path = require('path');
 
@@ -10,61 +10,91 @@ const storage = multer.diskStorage({
     cb(null, 'backend/uploads/');
   },
   filename: function (req, file, cb) {
-    cb(null, Date.now() + path.extname(file.originalname)); // unique dosya ismi
+    cb(null, Date.now() + path.extname(file.originalname));
   }
 });
 
 const upload = multer({ storage: storage });
 
-// Toptan Kitapları & Aramayı Getir
+// Kitapları & Aramayı Getir
 router.get('/', async (req, res) => {
   try {
     const { query, category } = req.query;
-    let filter = {};
-    if (query) {
-      filter.$or = [
-        { title: { $regex: query, $options: 'i' } },
-        { author: { $regex: query, $options: 'i' } }
-      ];
-    }
-    if (category) filter.category = category;
+    let sql = 'SELECT * FROM books';
+    let params = [];
 
-    const books = await Book.find(filter).populate('seller', 'name email');
+    if (query || category) {
+      sql += ' WHERE';
+      if (query) {
+        sql += ' (title LIKE ? OR author LIKE ?)';
+        params.push(`%${query}%`, `%${query}%`);
+      }
+      if (category) {
+        if (query) sql += ' AND';
+        sql += ' category = ?';
+        params.push(category);
+      }
+    }
+
+    const [books] = await pool.query(sql, params);
     res.json(books);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
 
-// Satıcının kendi eklediği kitapları getir
+// Satıcının kitaplarını getir
 router.get('/seller/:sellerId', async (req, res) => {
   try {
-    const books = await Book.find({ seller: req.params.sellerId });
+    const [books] = await pool.query('SELECT * FROM books WHERE seller_id = ?', [req.params.sellerId]);
     res.json(books);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
 
-// Kitap Ekle (Sadece Satıcı ve Admin - Basit yetki: userId üzerinden çalışır)
+// Kitap Ekle
 router.post('/', upload.single('imageFile'), async (req, res) => {
   try {
     const { title, author, category, price, description, seller, imageUrl } = req.body;
-    let imagePath = imageUrl || 'assets/images/book-placeholder.png'; // varsayılan
+    let imagePath = imageUrl || 'assets/images/book-placeholder.png';
 
-    // Eğer kullanıcı dosya yüklediyse
     if (req.file) {
       imagePath = '/uploads/' + req.file.filename;
     }
 
-    const newBook = new Book({
-      title, author, category, price, description, seller, image: imagePath
-    });
+    const [result] = await pool.query(
+      'INSERT INTO books (title, author, category, price, description, seller_id, image) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [title, author, category, price, description, seller, imagePath]
+    );
 
-    const savedBook = await newBook.save();
-    res.status(201).json(savedBook);
+    res.status(201).json({ id: result.insertId, title, author });
   } catch (error) {
     res.status(400).json({ message: error.message });
+  }
+});
+
+// Kitap Güncelle
+router.put('/:id', async (req, res) => {
+  try {
+    const { title, author, category, price, description, imageUrl } = req.body;
+    await pool.query(
+      'UPDATE books SET title = ?, author = ?, category = ?, price = ?, description = ?, image = ? WHERE id = ?',
+      [title, author, category, price, description || '', imageUrl || 'assets/images/book-placeholder.png', req.params.id]
+    );
+    res.json({ message: 'Kitap başarıyla güncellendi.' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Kitap Sil
+router.delete('/:id', async (req, res) => {
+  try {
+    await pool.query('DELETE FROM books WHERE id = ?', [req.params.id]);
+    res.json({ message: 'Kitap başarıyla silindi.' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 });
 

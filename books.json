@@ -1,0 +1,87 @@
+[
+  {
+    "id": 1,
+    "title": "Süt ve Bal",
+    "author": "Rupi Kaur",
+    "category": "Edebiyat",
+    "price": "120.00",
+    "image": "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=400",
+    "rating": 4.8,
+    "reviewCount": 124,
+    "isBestSeller": true
+  },
+  {
+    "id": 2,
+    "title": "Öteki",
+    "author": "Fyodor Mihayloviç Dostoyevski",
+    "category": "Edebiyat",
+    "price": "145.00",
+    "image": "https://covers.openlibrary.org/b/id/12214715-L.jpg",
+    "rating": 4.6,
+    "reviewCount": 215,
+    "isBestSeller": false
+  },
+  {
+    "id": 3,
+    "title": "Dorian Gray'in Portresi",
+    "author": "Oscar Wilde",
+    "category": "Edebiyat",
+    "price": "130.00",
+    "image": "https://covers.openlibrary.org/b/id/14314858-L.jpg",
+    "rating": 4.8,
+    "reviewCount": 412,
+    "isNew": true
+  },
+  {
+    "id": 4,
+    "title": "Kumarbaz",
+    "author": "Fyodor Mihayloviç Dostoyevski",
+    "category": "Edebiyat",
+    "price": "155.00",
+    "image": "https://covers.openlibrary.org/b/id/3293339-L.jpg",
+    "rating": 4.7,
+    "reviewCount": 380
+  },
+  {
+    "id": 5,
+    "title": "1984",
+    "author": "George Orwell",
+    "category": "Edebiyat",
+    "price": "175.00",
+    "image": "https://img.kitapyurdu.com/v1/getImage/fn:11202570/wh:true/wi:400",
+    "rating": 5.0,
+    "reviewCount": 421,
+    "isBestSeller": true
+  },
+  {
+    "id": 6,
+    "title": "İçimizdeki Şeytan",
+    "author": "Sabahattin Ali",
+    "category": "Edebiyat",
+    "price": "90.00",
+    "image": "https://img.kitapyurdu.com/v1/getImage/fn:11342207/wh:true/wi:400",
+    "rating": 4.6,
+    "reviewCount": 220
+  },
+  {
+    "id": 7,
+    "title": "Simyacı",
+    "author": "Paulo Coelho",
+    "category": "Edebiyat",
+    "price": "185.00",
+    "image": "https://img.kitapyurdu.com/v1/getImage/fn:11598462/wh:true/wi:400",
+    "rating": 4.7,
+    "reviewCount": 165
+  },
+  {
+    "id": 8,
+    "title": "Küçük Prens",
+    "author": "Antoine de Saint-Exupéry",
+    "category": "Çocuk",
+    "price": "160.00",
+    "image": "https://img.kitapyurdu.com/v1/getImage/fn:11494793/wh:true/wi:400",
+    "rating": 4.3,
+    "reviewCount": 32,
+    "isNew": true
+  }
+]

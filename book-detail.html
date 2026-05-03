@@ -6,138 +6,319 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>RafArası — Kitap Detayı</title>
   <meta name="description" content="Kitap detaylarını inceleyin ve sepetinize ekleyin.">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
   <link rel="stylesheet" href="assets/css/global.css">
   <link rel="stylesheet" href="assets/css/layout.css">
   <link rel="stylesheet" href="assets/css/components.css">
+  
   <style>
-    .book-detail-hero {
-      display: grid;
-      grid-template-columns: 350px 1fr;
-      gap: var(--space-2xl);
-      padding: var(--space-2xl) 0;
+    /* BKM Kitap tarzı özel stiller - Tema değişkenleriyle uyumlu */
+    body { background-color: var(--bg-primary); color: var(--text-primary); transition: all 0.3s; }
+    
+    .site-header { background: var(--bg-surface) !important; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .site-header a { color: var(--text-primary) !important; }
+    
+    .bkm-container {
+        background-color: var(--bg-surface);
+        border-radius: 8px;
+        box-shadow: var(--shadow-card);
+        padding: 40px;
+        margin-top: 20px;
+        margin-bottom: 20px;
+        border: 1px solid var(--border-glass);
+        transition: all 0.3s;
     }
+    
+    .bkm-book-grid {
+        display: grid;
+        grid-template-columns: 350px 1fr;
+        gap: 40px;
+    }
+    
     @media (max-width: 768px) {
-      .book-detail-hero { grid-template-columns: 1fr; }
+        .bkm-book-grid { grid-template-columns: 1fr; }
+        .bkm-container { padding: 20px; }
     }
-    .book-cover-wrapper {
-      background: var(--bg-glass);
-      backdrop-filter: blur(15px);
-      border: 1px solid var(--border-glass);
-      border-radius: var(--radius-lg);
-      padding: var(--space-xl);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 400px;
-      position: relative;
-      overflow: hidden;
+    
+    .bkm-book-image {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
     }
-    .book-cover-wrapper::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(circle, rgba(108,92,231,0.1) 0%, transparent 60%);
-      pointer-events: none;
+    
+    .bkm-book-image img {
+        width: 100%;
+        max-width: 300px;
+        height: auto;
+        border: 1px solid var(--border-glass);
+        box-shadow: var(--shadow-soft);
+        background-color: #fff; /* Kapaklar genelde beyaz zemin sever */
     }
-    .book-cover-wrapper .book-icon {
-      font-size: 8rem;
-      color: rgba(108, 92, 231, 0.3);
+    
+    .bkm-book-title {
+        font-family: var(--font-heading, 'Inter', sans-serif);
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 5px;
+        line-height: 1.2;
     }
-    .book-info {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
+    
+    .bkm-book-publisher {
+        font-size: 1.2rem;
+        color: var(--text-muted);
+        margin-bottom: 10px;
     }
-    .book-info .book-category {
-      display: inline-block;
-      margin-bottom: var(--space-md);
+    
+    .bkm-book-author {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 15px;
     }
-    .book-info h1 {
-      font-family: var(--font-heading);
-      font-size: 2.25rem;
-      margin-bottom: var(--space-sm);
+    
+    .bkm-rating-row {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        border-bottom: 1px solid var(--border-glass);
+        padding-bottom: 20px;
+        margin-bottom: 20px;
     }
-    .book-info .book-author {
-      color: var(--primary-light);
-      font-size: 1.1rem;
-      font-weight: 500;
-      margin-bottom: var(--space-lg);
+    
+    .bkm-rating-row .stars { color: #ffb400; font-size: 1.2rem; }
+    
+    .bkm-comment-btn {
+        color: var(--accent-rose);
+        border: 1px solid var(--accent-rose);
+        border-radius: 20px;
+        padding: 4px 15px;
+        font-size: 0.9rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: transparent;
+        transition: all 0.3s;
     }
-    .book-info .book-price {
-      font-size: 2rem;
-      font-weight: 700;
-      color: var(--accent-gold);
-      margin-bottom: var(--space-lg);
+    
+    .bkm-comment-btn:hover {
+        background: rgba(227, 6, 19, 0.1);
+        color: var(--accent-rose);
     }
-    .book-info .book-description {
-      color: var(--text-secondary);
-      line-height: 1.8;
-      margin-bottom: var(--space-xl);
+    
+    .bkm-price-section {
+        display: flex;
+        align-items: center;
+        gap: 30px;
+        margin-bottom: 30px;
     }
-    .book-actions {
-      display: flex;
-      gap: var(--space-md);
-      flex-wrap: wrap;
+    
+    .bkm-price-left { display: flex; flex-direction: column; }
+    
+    .bkm-old-price-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;}
+    .bkm-old-price { font-size: 1.2rem; color: var(--text-muted); text-decoration: line-through; margin-bottom: 5px;}
+    .bkm-current-price { font-size: 2.8rem; font-weight: 800; color: var(--text-primary); line-height: 1; }
+    
+    .bkm-discount-box {
+        background-color: var(--accent-mint);
+        color: white;
+        border-radius: 8px;
+        padding: 15px;
+        text-align: center;
+        min-width: 150px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
-    .book-actions .btn {
-      padding: 0.75rem 2rem !important;
-      border-radius: var(--radius-full) !important;
-      font-size: 0.95rem !important;
+    .bkm-discount-percent { font-size: 1.2rem; font-weight: 700; margin-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 5px; }
+    .bkm-discount-amount { font-size: 0.9rem; font-weight: 500; }
+    
+    .bkm-action-label { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-bottom: 8px; display: block; }
+    
+    .bkm-action-row {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 10px;
     }
-    .book-meta {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: var(--space-md);
-      margin-top: var(--space-2xl);
+    
+    .bkm-qty {
+        display: flex;
+        align-items: center;
+        border: 1px solid var(--border-glass);
+        border-radius: 4px;
+        overflow: hidden;
+        height: 54px;
+        background: var(--bg-surface);
     }
-    .meta-item {
-      background: var(--bg-glass);
-      border: 1px solid var(--border-glass);
-      border-radius: var(--radius-md);
-      padding: var(--space-md);
-      text-align: center;
+    
+    .bkm-qty button {
+        background: var(--bg-secondary);
+        border: none;
+        padding: 0 15px;
+        font-size: 1.4rem;
+        cursor: pointer;
+        height: 100%;
+        color: var(--text-primary);
     }
-    .meta-item .meta-label {
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--text-muted);
-      margin-bottom: 0.25rem;
+    
+    .bkm-qty input {
+        width: 60px;
+        text-align: center;
+        border: none;
+        border-left: 1px solid var(--border-glass);
+        border-right: 1px solid var(--border-glass);
+        font-size: 1.1rem;
+        font-weight: 600;
+        height: 100%;
+        color: var(--text-primary);
+        background: transparent;
     }
-    .meta-item .meta-value {
-      font-weight: 600;
-      color: var(--text-primary);
-      font-size: 0.9rem;
+    
+    .bkm-add-cart-btn {
+        background: linear-gradient(to bottom, var(--accent-rose) 0%, var(--primary) 100%);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 0 40px;
+        font-size: 1.3rem;
+        font-weight: 700;
+        flex-grow: 1;
+        height: 54px;
+        transition: opacity 0.3s;
+        text-transform: uppercase;
+        box-shadow: var(--shadow-btn);
     }
+    .bkm-add-cart-btn:hover { opacity: 0.9; color: white;}
+    
+    .bkm-add-fav {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        text-decoration: none;
+        display: block;
+        text-align: right;
+        margin-top: 15px;
+        cursor: pointer;
+    }
+    .bkm-add-fav i { color: var(--accent-rose); margin-right: 5px; }
+    .bkm-add-fav:hover { color: var(--accent-rose); }
+    
+    /* Accordion & Comments */
+    .bkm-section {
+        margin-top: 40px;
+        border: 1px solid var(--border-glass);
+        border-radius: 12px;
+        overflow: hidden;
+        background: var(--bg-surface);
+        box-shadow: var(--shadow-card);
+        transition: all 0.3s;
+    }
+    .bkm-section-header {
+        background-color: var(--accent-rose);
+        color: white;
+        padding: 15px 20px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+    }
+    .bkm-section-content { padding: 30px; color: var(--text-secondary); line-height: 1.8; font-size: 1.05rem;}
+    
+    .bkm-comments-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 20px 30px;
+        border-bottom: 1px solid var(--border-glass);
+    }
+    .bkm-comments-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--text-primary);
+    }
+    .bkm-comments-title i { color: var(--accent-rose); font-size: 1.8rem; }
+    
+    .bkm-review {
+        padding: 30px;
+        border-bottom: 1px solid var(--border-glass);
+        display: flex;
+        gap: 20px;
+    }
+    .bkm-review:last-child { border-bottom: none; }
+    .bkm-review-avatar {
+        width: 60px;
+        height: 60px;
+        background-color: var(--primary);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 1.5rem;
+        flex-shrink: 0;
+    }
+    .bkm-review-content { flex-grow: 1; }
+    .bkm-review-meta { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px; }
+    .bkm-review-meta strong { color: var(--text-primary); font-size: 0.95rem; display: block; margin-bottom: 5px;}
+    .bkm-review-text { font-weight: 600; color: var(--text-primary); margin-bottom: 15px; font-size: 1.1rem;}
+    
+    .bkm-verified {
+        color: var(--accent-mint);
+        border: 1px solid var(--accent-mint);
+        border-radius: 20px;
+        padding: 4px 15px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        display: inline-block;
+    }
+    .bkm-review-right { text-align: right; min-width: 120px; }
+    .bkm-review-right .stars { color: #ffb400; font-size: 1.2rem; margin-bottom: 15px;}
+    .bkm-helpful { color: var(--accent-mint); font-size: 1rem; display: flex; justify-content: flex-end; gap: 15px; align-items: center;}
+    .bkm-helpful i { cursor: pointer; font-size: 1.2rem;}
+    .bkm-helpful .bi-hand-thumbs-down { color: var(--accent-rose); }
+    
+    .bkm-red-btn {
+        background-color: var(--accent-rose);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 8px 25px;
+        font-weight: 600;
+        text-decoration: none;
+    }
+    .bkm-red-btn:hover { color: white; background-color: var(--primary); }
   </style>
 </head>
 <body>
   <header class="site-header">
     <nav class="navbar navbar-expand-lg sticky-top">
       <div class="container">
-        <a class="navbar-brand" href="index.html"><i class="bi bi-book-half me-2"></i>RafArası</a>
+        <a class="navbar-brand" href="index.html">
+          <i class="bi bi-book-half me-2"></i>RafArası
+        </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="mainNavbar">
           <form class="d-flex ms-auto me-3 search-form">
             <div class="input-group">
-              <input class="form-control" type="search" placeholder="Kitap ara..." aria-label="Search">
-              <button class="btn btn-outline-secondary search-btn" type="submit"><i class="bi bi-search"></i></button>
+              <input class="form-control" type="search" placeholder="Aradığınız ürünün adını yazınız..." aria-label="Search" style="border-radius: 20px 0 0 20px;">
+              <button class="btn btn-outline-secondary search-btn" type="submit" style="border-radius: 0 20px 20px 0;"><i class="bi bi-search"></i></button>
             </div>
           </form>
           <ul class="navbar-nav mb-2 mb-lg-0 align-items-center">
-            <li class="nav-item"><a class="nav-link" href="#"><i class="bi bi-heart"></i></a></li>
-            <li class="nav-item"><a class="nav-link" href="login.html"><i class="bi bi-person"></i></a></li>
-            <li class="nav-item position-relative">
-              <a class="nav-link" href="cart.html"><i class="bi bi-bag"></i></a>
-              <span class="cart-count position-absolute top-0 start-100 translate-middle badge rounded-pill">0</span>
+            <li class="nav-item"><a class="nav-link" href="favorites.html" title="Favoriler"><i class="bi bi-heart" style="color:#e30613; font-size: 1.5rem;"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="login.html"><i class="bi bi-person" style="color:#e30613; font-size: 1.5rem;"></i></a></li>
+            <li class="nav-item position-relative ms-2">
+              <a class="nav-link" href="cart.html"><i class="bi bi-cart3" style="color:#e30613; font-size: 1.8rem;"></i></a>
+              <span class="cart-count position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">0</span>
             </li>
           </ul>
         </div>
@@ -145,68 +326,122 @@
     </nav>
   </header>
 
-  <main class="container main">
-    <nav aria-label="breadcrumb" style="margin-bottom: var(--space-md);">
-      <ol class="breadcrumb" style="background: transparent; font-size: 0.85rem;">
-        <li class="breadcrumb-item"><a href="index.html" style="color: var(--text-muted);">Ana Sayfa</a></li>
-        <li class="breadcrumb-item"><a href="#" style="color: var(--text-muted);">Edebiyat</a></li>
-        <li class="breadcrumb-item active" style="color: var(--primary-light);">Kitap Detayı</li>
+  <main class="container">
+    <nav aria-label="breadcrumb" style="margin-top: 20px;">
+      <ol class="breadcrumb" style="font-size: 0.85rem;">
+        <li class="breadcrumb-item"><a href="index.html" style="color: var(--text-secondary); text-decoration: none;">Anasayfa</a></li>
+        <li class="breadcrumb-item"><a href="#" style="color: var(--text-secondary); text-decoration: none;" id="bkm-breadcrumb-cat">Kategori</a></li>
+        <li class="breadcrumb-item active" style="color: var(--accent-rose);" aria-current="page" id="bkm-breadcrumb-title">Kitap Adı</li>
       </ol>
     </nav>
 
-    <section class="book-detail-hero">
-      <div class="book-cover-wrapper">
-        <i class="bi bi-journal-richtext book-icon"></i>
-      </div>
-      <div class="book-info">
-        <span class="tag tag-primary book-category">Edebiyat</span>
-        <h1 id="book-title">Suç ve Ceza</h1>
-        <p class="book-author" id="book-author"><i class="bi bi-pen me-1"></i>Dostoyevski</p>
-        <div class="star-rating" style="margin-bottom: var(--space-md); font-size: 0.9rem;">
-          <i class="bi bi-star-fill"></i>
-          <i class="bi bi-star-fill"></i>
-          <i class="bi bi-star-fill"></i>
-          <i class="bi bi-star-fill"></i>
-          <i class="bi bi-star"></i>
-          <span style="color: var(--text-muted); margin-left: 0.5rem; font-size: 0.85rem;">4.2 (328 değerlendirme)</span>
+    <!-- Main Book Container -->
+    <div class="bkm-container">
+        <div class="bkm-book-grid">
+            <div class="bkm-book-image">
+                <img src="/assets/images/book-placeholder.png" id="bkm-image" alt="Kitap Kapağı">
+            </div>
+            
+            <div class="bkm-book-info">
+                <h1 class="bkm-book-title" id="bkm-title">Yükleniyor...</h1>
+                <div class="bkm-book-publisher" id="bkm-publisher">İş Bankası Kültür Yayınları</div>
+                <div class="bkm-book-author" id="bkm-author">Yazar Adı</div>
+                
+                <div class="bkm-rating-row">
+                    <div class="stars">
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-half"></i>
+                    </div>
+                    <a href="#comments" class="bkm-comment-btn"><i class="bi bi-chat-dots"></i> Yorum Yap</a>
+                </div>
+                
+                <div class="bkm-price-section">
+                    <div class="bkm-price-left">
+                        <div class="bkm-old-price-label">Üretici Liste Fiyatı</div>
+                        <div class="bkm-old-price" id="bkm-old-price">0,00 TL</div>
+                        <div class="bkm-current-price" id="bkm-current-price">0,00 TL</div>
+                    </div>
+                    <div class="bkm-discount-box">
+                        <div class="bkm-discount-percent">%35 İndirim</div>
+                        <div class="bkm-discount-amount" id="bkm-discount-amount">Kazancınız: 0,00 TL</div>
+                    </div>
+                </div>
+                
+                <div style="max-width: 400px;">
+                    <span class="bkm-action-label">ADET</span>
+                    <div class="bkm-action-row">
+                        <div class="bkm-qty">
+                            <button id="bkm-qty-minus">-</button>
+                            <input type="text" id="bkm-qty-val" value="1" readonly>
+                            <button id="bkm-qty-plus">+</button>
+                        </div>
+                        <button class="bkm-add-cart-btn" id="bkm-add-cart-btn">SEPETE EKLE</button>
+                    </div>
+                    <a class="bkm-add-fav" id="bkm-fav-btn">
+                        <i class="bi bi-heart"></i> Favorilere Ekle
+                    </a>
+                </div>
+            </div>
         </div>
-        <p class="book-price" id="book-price">₺45.90</p>
-        <p class="book-description" id="book-description">
-          Raskolnikov, yoksul bir hukuk öğrencisidir. İnsanları "sıradan" ve "olağanüstü" olarak iki gruba ayırır. Kendini olağanüstü insanlar grubunda gören Raskolnikov, ahlaki sınırları aşabileceğine inanarak bir cinayete girişir. Ancak işlediği suç, onu içsel bir cehenneme sürükler.
-        </p>
-        <div class="book-actions">
-          <button class="btn btn-primary" id="add-to-cart">
-            <i class="bi bi-bag-plus me-1"></i>Sepete Ekle
-          </button>
-          <button class="btn btn-outline-primary" id="add-to-fav">
-            <i class="bi bi-heart me-1"></i>Favorilere Ekle
-          </button>
-        </div>
-      </div>
-    </section>
-
-    <div class="book-meta">
-      <div class="meta-item">
-        <div class="meta-label">Yayınevi</div>
-        <div class="meta-value">İş Bankası Kültür</div>
-      </div>
-      <div class="meta-item">
-        <div class="meta-label">Sayfa Sayısı</div>
-        <div class="meta-value">687</div>
-      </div>
-      <div class="meta-item">
-        <div class="meta-label">Dil</div>
-        <div class="meta-value">Türkçe</div>
-      </div>
-      <div class="meta-item">
-        <div class="meta-label">ISBN</div>
-        <div class="meta-value">978-975-05-1234</div>
-      </div>
-      <div class="meta-item">
-        <div class="meta-label">Kargo</div>
-        <div class="meta-value" style="color:var(--accent-mint);">Ücretsiz</div>
-      </div>
     </div>
+    
+    <!-- Description Section -->
+    <div class="bkm-section">
+        <div class="bkm-section-header">
+            <span><i class="bi bi-chevron-down me-2"></i> <span id="bkm-desc-title">Kitap Adı</span> Ürün Açıklaması</span>
+        </div>
+        <div class="bkm-section-content">
+            Profesör Lidenbrock'a acayip, garip, şaşkın, deli ya da üşütük demek biraz haksızlık olurdu. Şahsına münhasır tanımı bu ünlü bilim adamı için daha uygun gibiydi. Gerçi biraz çılgın ya da tuhaf olduğunu düşünenler de vardı, ama sonuçta bu şaşırtıcı adam döneminin en saygın bilimcilerinden biriydi. Doğa tarihi müzesine benzeyen evinde kendisi gibi başarılı bir bilimci olan yeğeni Axel'le yaşıyordu. Axel amcasının tersine mantıklı, risk almayı sevmeyen, sakin bir delikanlıydı. Üniversitede güvenli bir iş ve güzel nişanlısıyla evlenmekten başka bir isteği yoktu. Ancak bir gün sahaftan aldığı eski bir kitabın içinden çıkan parşömen parçası, Profesör Lidenbrock ve yeğenini nefes kesici bir maceraya sürükleyecekti.
+            <br><br>
+            Eğlenceli, heyecanlı, harika bir macera!...
+        </div>
+    </div>
+    
+    <!-- Comments Section -->
+    <div class="bkm-section" id="comments" style="margin-bottom: 60px;">
+        <div class="bkm-comments-header">
+            <div class="bkm-comments-title">
+                <i class="bi bi-chat-square-text"></i> Yorumlar (51)
+            </div>
+            <div class="d-flex gap-3 align-items-center">
+                <select class="form-select" style="width: auto;">
+                    <option>Sıralama</option>
+                    <option>En Yeni</option>
+                    <option>En Yüksek Puan</option>
+                </select>
+                <a href="#" class="bkm-red-btn">Yorum Yap</a>
+            </div>
+        </div>
+        
+        <div class="bkm-review">
+            <div class="bkm-review-avatar">TÇ</div>
+            <div class="bkm-review-content">
+                <div class="bkm-review-meta">
+                    <strong>T** Ç**************</strong>
+                    13.02.2026 | 21:10
+                </div>
+                <div class="bkm-review-text">Çocuklar heyecanla okuyabilir</div>
+                <div class="bkm-verified">Kullanıcı ürünü satın aldı.</div>
+            </div>
+            <div class="bkm-review-right">
+                <div class="stars">
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                </div>
+                <div class="bkm-helpful">
+                    <i class="bi bi-hand-thumbs-up"></i> 0
+                    <i class="bi bi-hand-thumbs-down ms-2"></i> 0
+                </div>
+            </div>
+        </div>
+    </div>
+
   </main>
 
   <footer class="bg-dark text-light pt-5">
@@ -222,10 +457,11 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
   <script src="assets/js/theme-toggle.js"></script>
-  <script src="assets/js/scroll-top.js"></script>
+  
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      function showToast(message, type = 'info') {
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Toast Helper
+      window.showToast = function(message, type = 'info') {
         const container = document.getElementById('toast-container');
         const toast = document.createElement('div');
         toast.className = `toast-msg ${type}`;
@@ -233,22 +469,157 @@
         toast.innerHTML = `<i class="bi ${icons[type]}"></i> ${message}`;
         container.appendChild(toast);
         setTimeout(() => toast.remove(), 3000);
+      };
+
+      // LocalStorage Helpers
+      const getCart = () => JSON.parse(localStorage.getItem('cart')) || [];
+      const getFavorites = () => JSON.parse(localStorage.getItem('favorites')) || [];
+      
+      const updateCartCount = () => {
+        const countEls = document.querySelectorAll('.cart-count');
+        const cart = getCart();
+        const total = cart.reduce((sum, item) => sum + item.quantity, 0);
+        countEls.forEach(el => el.textContent = total);
+      };
+      updateCartCount();
+      
+      // Auth UI handling
+      const updateAuthUI = () => {
+        const userId = localStorage.getItem('userId');
+        const loginBtn = document.querySelector('a[href="login.html"]')?.parentElement;
+        const personIcon = document.querySelector('a[href="javascript:navigateToProfile()"]')?.parentElement;
+        const cartIcon = document.querySelector('a[href="cart.html"]')?.parentElement;
+
+        if (userId) {
+          if (loginBtn) loginBtn.style.display = 'none';
+          if (personIcon) personIcon.style.display = 'block';
+          
+          if (!document.querySelector('.logout-btn')) {
+            const logoutLi = document.createElement('li');
+            logoutLi.className = 'nav-item ms-2';
+            logoutLi.innerHTML = `<a class="btn btn-outline-danger btn-sm logout-btn" href="#"><i class="bi bi-box-arrow-right me-1"></i>Çıkış</a>`;
+            document.querySelector('.navbar-nav').appendChild(logoutLi);
+            logoutLi.querySelector('.logout-btn').addEventListener('click', (e) => {
+              e.preventDefault();
+              localStorage.clear();
+              window.location.href = 'index.html';
+            });
+          }
+        } else {
+          if (loginBtn) loginBtn.style.display = 'block';
+          if (personIcon) personIcon.style.display = 'none';
+        }
+      };
+      updateAuthUI();
+
+      // Get ID from URL
+      const urlParams = new URLSearchParams(window.location.search);
+      let bookId = parseInt(urlParams.get('id'));
+
+      // Eğer URL'de ID yoksa test amaçlı varsayılan olarak 1. kitabı yükle
+      if(!bookId || isNaN(bookId)) {
+          bookId = 1;
       }
 
-      document.getElementById('add-to-cart')?.addEventListener('click', () => {
-        const countEl = document.querySelector('.cart-count');
-        if (countEl) countEl.textContent = parseInt(countEl.textContent || 0) + 1;
-        showToast('Kitap sepete eklendi!', 'success');
-      });
+      try {
+          // Önbellek sorunlarını (cache) engellemek için rastgele parametre ekliyoruz
+          const response = await fetch('/books.json?t=' + new Date().getTime());
+          if(!response.ok) throw new Error('Data fetch failed: ' + response.statusText);
+          const books = await response.json();
+          const book = books.find(b => b.id === bookId);
 
-      document.getElementById('add-to-fav')?.addEventListener('click', () => {
-        showToast('Favorilere eklendi!', 'success');
-        const icon = document.querySelector('#add-to-fav .bi-heart');
-        if (icon) {
-          icon.classList.replace('bi-heart', 'bi-heart-fill');
-          icon.style.color = 'var(--accent-rose)';
-        }
-      });
+          if(!book) {
+              document.getElementById('bkm-title').textContent = 'Kitap Bulunamadı!';
+              return;
+          }
+
+          // Populate DOM
+          document.title = `${book.title} - RafArası`;
+          document.getElementById('bkm-breadcrumb-title').textContent = book.title;
+          document.getElementById('bkm-breadcrumb-cat').textContent = book.category || 'Edebiyat';
+          document.getElementById('bkm-desc-title').textContent = book.title;
+          
+          document.getElementById('bkm-title').textContent = book.title;
+          document.getElementById('bkm-author').textContent = book.author;
+          
+          // Fiyat Hesaplama
+          const currentPrice = parseFloat(book.price);
+          const oldPrice = (currentPrice * 1.35).toFixed(2);
+          const discountAmount = (oldPrice - currentPrice).toFixed(2);
+          
+          document.getElementById('bkm-old-price').textContent = `${oldPrice.replace('.',',')} TL`;
+          document.getElementById('bkm-current-price').textContent = `${currentPrice.toFixed(2).replace('.',',')} TL`;
+          document.getElementById('bkm-discount-amount').textContent = `Kazancınız: ${discountAmount.replace('.',',')} TL`;
+          
+          if(book.image) {
+              document.getElementById('bkm-image').src = book.image;
+          }
+
+          // Favori Butonu
+          const favBtn = document.getElementById('bkm-fav-btn');
+          const isFav = getFavorites().includes(book.id);
+          if(isFav) {
+              favBtn.innerHTML = '<i class="bi bi-heart-fill"></i> Favorilerden Çıkar';
+          } else {
+              favBtn.innerHTML = '<i class="bi bi-heart"></i> Favorilere Ekle';
+          }
+
+          favBtn.addEventListener('click', (e) => {
+              e.preventDefault();
+              let favs = getFavorites();
+              if(favs.includes(book.id)) {
+                  favs = favs.filter(id => id !== book.id);
+                  favBtn.innerHTML = '<i class="bi bi-heart"></i> Favorilere Ekle';
+                  showToast('Favorilerden çıkarıldı!', 'info');
+              } else {
+                  favs.push(book.id);
+                  favBtn.innerHTML = '<i class="bi bi-heart-fill"></i> Favorilerden Çıkar';
+                  showToast('Favorilere eklendi!', 'success');
+              }
+              localStorage.setItem('favorites', JSON.stringify(favs));
+          });
+
+          // Adet ve Sepete Ekle
+          const qtyInput = document.getElementById('bkm-qty-val');
+          document.getElementById('bkm-qty-minus').addEventListener('click', () => {
+              let val = parseInt(qtyInput.value);
+              if(val > 1) qtyInput.value = val - 1;
+          });
+          document.getElementById('bkm-qty-plus').addEventListener('click', () => {
+              qtyInput.value = parseInt(qtyInput.value) + 1;
+          });
+
+          document.getElementById('bkm-add-cart-btn').addEventListener('click', () => {
+              let cart = getCart();
+              const existing = cart.find(item => item.id === book.id);
+              const qty = parseInt(qtyInput.value);
+              if (existing) {
+                  existing.quantity += qty;
+              } else {
+                  cart.push({...book, quantity: qty});
+              }
+              localStorage.setItem('cart', JSON.stringify(cart));
+              updateCartCount();
+              showToast(`${qty} adet kitap sepete eklendi!`, 'success');
+          });
+
+          // Açıklama Akordeonu
+          const descHeader = document.querySelector('.bkm-section-header');
+          const descContent = document.querySelector('.bkm-section-content');
+          descHeader.addEventListener('click', () => {
+              if (descContent.style.display === 'none') {
+                  descContent.style.display = 'block';
+                  descHeader.querySelector('i').classList.replace('bi-chevron-right', 'bi-chevron-down');
+              } else {
+                  descContent.style.display = 'none';
+                  descHeader.querySelector('i').classList.replace('bi-chevron-down', 'bi-chevron-right');
+              }
+          });
+
+      } catch (err) {
+          console.error(err);
+          document.getElementById('bkm-title').textContent = 'Veri çekilemedi. Hata: ' + err.message;
+      }
     });
   </script>
 </body>

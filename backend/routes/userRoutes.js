@@ -1,38 +1,63 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/User');
+const pool = require('../config/database');
 
-// Kullanıcı Kaydı (Kayıt ol - Buyer/Seller için vs)
+// ==========================================
+// ALICI (users tablosu) İşlemleri
+// ==========================================
+
+// Alıcı Kayıt
 router.post('/register', async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
-    // Parola hashlenebilir, ama basit örnek için düz tutalım:
-    const userExists = await User.findOne({ email });
-    if (userExists) return res.status(400).json({ message: 'E-posta zaten kullanımda, lütfen giriş yapın veya farklı bir e-posta deneyin.' });
 
-    const user = await User.create({ name, email, password, role: role || 'buyer' });
-    res.status(201).json(user);
+    // Rolüne göre hangi tabloya kayıt olacağını belirle
+    let table = 'users'; // varsayılan: alıcı
+    if (role === 'seller') table = 'sellers';
+
+    // E-posta kontrolü
+    const [existing] = await pool.query(`SELECT * FROM ${table} WHERE email = ?`, [email]);
+    if (existing.length > 0) {
+      return res.status(400).json({ message: 'E-posta zaten kullanımda.' });
+    }
+
+    // Kayıt
+    const [result] = await pool.query(
+      `INSERT INTO ${table} (name, email, password) VALUES (?, ?, ?)`,
+      [name, email, password]
+    );
+
+    res.status(201).json({ id: result.insertId, name, email, role: role || 'buyer' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
 
-// Giriş Yapma (Basit Login mantığı)
+// Giriş Yapma (3 tablodan da kontrol eder)
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ email });
-    
-    if (user && user.password === password) {
-      res.json({
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role
-      });
-    } else {
-      res.status(401).json({ message: 'Geçersiz e-posta veya parola' });
+
+    // Önce admins tablosuna bak
+    const [admins] = await pool.query('SELECT * FROM admins WHERE email = ? AND password = ?', [email, password]);
+    if (admins.length > 0) {
+      return res.json({ _id: admins[0].id, name: admins[0].name, email: admins[0].email, role: 'admin' });
     }
+
+    // Sonra sellers tablosuna bak
+    const [sellers] = await pool.query('SELECT * FROM sellers WHERE email = ? AND password = ?', [email, password]);
+    if (sellers.length > 0) {
+      return res.json({ _id: sellers[0].id, name: sellers[0].name, email: sellers[0].email, role: 'seller' });
+    }
+
+    // Son olarak users (alıcılar) tablosuna bak
+    const [users] = await pool.query('SELECT * FROM users WHERE email = ? AND password = ?', [email, password]);
+    if (users.length > 0) {
+      return res.json({ _id: users[0].id, name: users[0].name, email: users[0].email, role: 'buyer' });
+    }
+
+    // Hiçbirinde bulunamadı
+    res.status(401).json({ message: 'Geçersiz e-posta veya parola' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

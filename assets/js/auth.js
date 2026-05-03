@@ -70,7 +70,8 @@ document.addEventListener('DOMContentLoaded', () => {
           } else if (data.role === 'seller') {
              setTimeout(() => window.location.href = 'seller.html', 1500);
           } else {
-             setTimeout(() => window.location.href = 'buyer.html', 1500);
+             // Alıcılar direkt ana sayfaya yönlendirilir
+             setTimeout(() => window.location.href = 'index.html', 1500);
           }
         } else {
           showToast(data.message || 'Giriş başarısız.', 'error');
