@@ -401,45 +401,51 @@
     </div>
     
     <!-- Comments Section -->
-    <div class="bkm-section" id="comments" style="margin-bottom: 60px;">
+    <div class="bkm-section" id="comments-section" style="margin-bottom: 60px;">
         <div class="bkm-comments-header">
             <div class="bkm-comments-title">
-                <i class="bi bi-chat-square-text"></i> Yorumlar (51)
+                <i class="bi bi-chat-square-text"></i> Yorumlar (<span id="comment-count">0</span>)
             </div>
             <div class="d-flex gap-3 align-items-center">
-                <select class="form-select" style="width: auto;">
-                    <option>Sıralama</option>
-                    <option>En Yeni</option>
-                    <option>En Yüksek Puan</option>
-                </select>
-                <a href="#" class="bkm-red-btn">Yorum Yap</a>
+                <button class="bkm-red-btn" id="open-comment-modal">Yorum Yap</button>
             </div>
         </div>
-        
-        <div class="bkm-review">
-            <div class="bkm-review-avatar">TÇ</div>
-            <div class="bkm-review-content">
-                <div class="bkm-review-meta">
-                    <strong>T** Ç**************</strong>
-                    13.02.2026 | 21:10
-                </div>
-                <div class="bkm-review-text">Çocuklar heyecanla okuyabilir</div>
-                <div class="bkm-verified">Kullanıcı ürünü satın aldı.</div>
-            </div>
-            <div class="bkm-review-right">
-                <div class="stars">
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                </div>
-                <div class="bkm-helpful">
-                    <i class="bi bi-hand-thumbs-up"></i> 0
-                    <i class="bi bi-hand-thumbs-down ms-2"></i> 0
-                </div>
-            </div>
+        <div id="comments-list">
+            <!-- Yorumlar buraya yüklenecek -->
+            <div class="text-center py-5 text-muted">Henüz yorum yapılmamış. İlk yorumu siz yapın!</div>
         </div>
+    </div>
+    
+    <!-- Yorum Yap Modalı -->
+    <div class="modal fade" id="commentModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background: var(--bg-surface); border: 1px solid var(--border-glass);">
+          <div class="modal-header" style="border-bottom: 1px solid var(--border-glass);">
+            <h5 class="modal-title">Kitaba Yorum Yap</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="filter: invert(1);"></button>
+          </div>
+          <div class="modal-body">
+            <form id="comment-form">
+              <div class="mb-3">
+                <label class="form-label">Puanınız</label>
+                <div class="stars-input" id="stars-input" style="font-size: 1.5rem; color: #ffb400; cursor: pointer;">
+                  <i class="bi bi-star-fill" data-value="1"></i>
+                  <i class="bi bi-star-fill" data-value="2"></i>
+                  <i class="bi bi-star-fill" data-value="3"></i>
+                  <i class="bi bi-star-fill" data-value="4"></i>
+                  <i class="bi bi-star-fill" data-value="5"></i>
+                </div>
+                <input type="hidden" id="rating-val" value="5">
+              </div>
+              <div class="mb-3">
+                <label for="comment-text" class="form-label">Yorumunuz</label>
+                <textarea class="form-control" id="comment-text" rows="4" placeholder="Kitap hakkındaki düşüncelerinizi paylaşın..." required></textarea>
+              </div>
+              <button type="submit" class="btn btn-primary w-100">Yorumu Gönder</button>
+            </form>
+          </div>
+        </div>
+      </div>
     </div>
 
   </main>
@@ -457,60 +463,13 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
   <script src="assets/js/theme-toggle.js"></script>
+  <script src="assets/js/nav.js"></script>
   
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
-      // Toast Helper
-      window.showToast = function(message, type = 'info') {
-        const container = document.getElementById('toast-container');
-        const toast = document.createElement('div');
-        toast.className = `toast-msg ${type}`;
-        const icons = { success: 'bi-check-circle-fill', error: 'bi-x-circle-fill', info: 'bi-info-circle-fill' };
-        toast.innerHTML = `<i class="bi ${icons[type]}"></i> ${message}`;
-        container.appendChild(toast);
-        setTimeout(() => toast.remove(), 3000);
-      };
-
-      // LocalStorage Helpers
+      // Helpers are now handled by nav.js or reused where needed locally
       const getCart = () => JSON.parse(localStorage.getItem('cart')) || [];
       const getFavorites = () => JSON.parse(localStorage.getItem('favorites')) || [];
-      
-      const updateCartCount = () => {
-        const countEls = document.querySelectorAll('.cart-count');
-        const cart = getCart();
-        const total = cart.reduce((sum, item) => sum + item.quantity, 0);
-        countEls.forEach(el => el.textContent = total);
-      };
-      updateCartCount();
-      
-      // Auth UI handling
-      const updateAuthUI = () => {
-        const userId = localStorage.getItem('userId');
-        const loginBtn = document.querySelector('a[href="login.html"]')?.parentElement;
-        const personIcon = document.querySelector('a[href="javascript:navigateToProfile()"]')?.parentElement;
-        const cartIcon = document.querySelector('a[href="cart.html"]')?.parentElement;
-
-        if (userId) {
-          if (loginBtn) loginBtn.style.display = 'none';
-          if (personIcon) personIcon.style.display = 'block';
-          
-          if (!document.querySelector('.logout-btn')) {
-            const logoutLi = document.createElement('li');
-            logoutLi.className = 'nav-item ms-2';
-            logoutLi.innerHTML = `<a class="btn btn-outline-danger btn-sm logout-btn" href="#"><i class="bi bi-box-arrow-right me-1"></i>Çıkış</a>`;
-            document.querySelector('.navbar-nav').appendChild(logoutLi);
-            logoutLi.querySelector('.logout-btn').addEventListener('click', (e) => {
-              e.preventDefault();
-              localStorage.clear();
-              window.location.href = 'index.html';
-            });
-          }
-        } else {
-          if (loginBtn) loginBtn.style.display = 'block';
-          if (personIcon) personIcon.style.display = 'none';
-        }
-      };
-      updateAuthUI();
 
       // Get ID from URL
       const urlParams = new URLSearchParams(window.location.search);
@@ -522,11 +481,11 @@
       }
 
       try {
-          // Önbellek sorunlarını (cache) engellemek için rastgele parametre ekliyoruz
-          const response = await fetch('/books.json?t=' + new Date().getTime());
+          const response = await fetch('http://localhost:3000/api/books');
           if(!response.ok) throw new Error('Data fetch failed: ' + response.statusText);
           const books = await response.json();
-          const book = books.find(b => b.id === bookId);
+          // Database uses 'id' which might be a number or string depending on MySQL driver, but usually number
+          const book = books.find(b => parseInt(b.id) === bookId);
 
           if(!book) {
               document.getElementById('bkm-title').textContent = 'Kitap Bulunamadı!';
@@ -577,6 +536,7 @@
                   showToast('Favorilere eklendi!', 'success');
               }
               localStorage.setItem('favorites', JSON.stringify(favs));
+              if (window.syncFavoritesWithDB) window.syncFavoritesWithDB();
           });
 
           // Adet ve Sepete Ekle
@@ -599,6 +559,7 @@
                   cart.push({...book, quantity: qty});
               }
               localStorage.setItem('cart', JSON.stringify(cart));
+              if (window.syncCartWithDB) window.syncCartWithDB();
               updateCartCount();
               showToast(`${qty} adet kitap sepete eklendi!`, 'success');
           });
@@ -620,6 +581,122 @@
           console.error(err);
           document.getElementById('bkm-title').textContent = 'Veri çekilemedi. Hata: ' + err.message;
       }
+
+      // ==============================
+      // Yorumları Yükle & Gönder
+      // ==============================
+      const loadReviews = async () => {
+        try {
+          const res = await fetch(`http://localhost:3000/api/books/${bookId}/reviews`);
+          const reviews = await res.json();
+          
+          const countEl = document.getElementById('comment-count');
+          const listEl = document.getElementById('comments-list');
+          
+          if (countEl) countEl.textContent = reviews.length;
+          
+          if (!listEl) return;
+          
+          if (reviews.length === 0) {
+            listEl.innerHTML = '<div class="text-center py-5 text-muted">Henüz yorum yapılmamış. İlk yorumu siz yapın!</div>';
+            return;
+          }
+
+          listEl.innerHTML = reviews.map(r => {
+            const date = new Date(r.created_at).toLocaleDateString('tr-TR');
+            const time = new Date(r.created_at).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+            
+            let stars = '';
+            for(let i=1; i<=5; i++) {
+              stars += `<i class="bi bi-star${i <= r.rating ? '-fill' : ''}"></i>`;
+            }
+
+            return `
+              <div class="bkm-review">
+                <div class="bkm-review-avatar">${r.user_name.charAt(0).toUpperCase()}</div>
+                <div class="bkm-review-content">
+                  <div class="bkm-review-meta">
+                    <strong>${r.user_name}</strong>
+                    ${date} | ${time}
+                  </div>
+                  <div class="bkm-review-text">${r.comment}</div>
+                  <div class="bkm-verified">Kullanıcı ürünü satın aldı.</div>
+                </div>
+                <div class="bkm-review-right">
+                  <div class="stars" style="color: #ffb400;">${stars}</div>
+                </div>
+              </div>
+            `;
+          }).join('');
+          
+        } catch (err) {
+          console.error('Yorum yükleme hatası:', err);
+        }
+      };
+
+      loadReviews();
+
+      // Yorum Yap Modalı Kontrolü
+      const commentModal = new bootstrap.Modal(document.getElementById('commentModal'));
+      document.getElementById('open-comment-modal')?.addEventListener('click', () => {
+        if (!localStorage.getItem('userId')) {
+          showToast('Yorum yapmak için giriş yapmalısınız.', 'error');
+          setTimeout(() => window.location.href = 'login.html', 1500);
+          return;
+        }
+        commentModal.show();
+      });
+
+      // Yıldız Seçimi
+      const starIcons = document.querySelectorAll('#stars-input i');
+      starIcons.forEach(icon => {
+        icon.addEventListener('click', () => {
+          const val = parseInt(icon.dataset.value);
+          document.getElementById('rating-val').value = val;
+          starIcons.forEach(s => {
+            if (parseInt(s.dataset.value) <= val) {
+              s.classList.replace('bi-star', 'bi-star-fill');
+            } else {
+              s.classList.replace('bi-star-fill', 'bi-star');
+            }
+          });
+        });
+      });
+
+      // Form Gönderme
+      document.getElementById('comment-form')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const comment = document.getElementById('comment-text').value.trim();
+        const rating = document.getElementById('rating-val').value;
+        const userId = localStorage.getItem('userId');
+        const userName = localStorage.getItem('userName') || 'Anonim';
+
+        try {
+          const res = await fetch(`http://localhost:3000/api/books/${bookId}/reviews`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              user_id: userId,
+              user_name: userName,
+              rating: rating,
+              comment: comment
+            })
+          });
+
+          if (res.ok) {
+            showToast('Yorumunuz başarıyla eklendi!', 'success');
+            commentModal.hide();
+            document.getElementById('comment-form').reset();
+            loadReviews();
+          } else {
+            const data = await res.json();
+            showToast(data.message || 'Hata oluştu.', 'error');
+          }
+        } catch (err) {
+          showToast('Sunucu hatası.', 'error');
+        }
+      });
     });
   </script>
 </body>

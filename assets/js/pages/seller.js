@@ -1,6 +1,20 @@
 document.addEventListener('DOMContentLoaded', () => {
   const API_URL = 'http://localhost:3000/api/books';
-  const sellerId = localStorage.getItem('userId') || 1;
+  const sellerId = localStorage.getItem('userId');
+  const userRole = localStorage.getItem('userRole');
+  const userName = localStorage.getItem('userName') || 'Satıcı';
+
+  // Session check
+  if (!sellerId || userRole !== 'seller') {
+    window.location.href = 'login.html';
+    return;
+  }
+
+  // Update UI with user name
+  const sidebarName = document.getElementById('sidebar-name');
+  const welcomeText = document.getElementById('welcome-text');
+  if (sidebarName) sidebarName.textContent = userName;
+  if (welcomeText) welcomeText.textContent = `Merhaba 👋 ${userName}`;
 
   // Toast Helper
   function showToast(message, type = 'info') {
@@ -82,42 +96,9 @@ document.addEventListener('DOMContentLoaded', () => {
       attachListeners(books);
     } catch (err) {
       console.error('Kitaplar yüklenirken hata:', err);
-      // API yoksa books.json'dan dene (fallback)
-      try {
-        const res2 = await fetch('books.json');
-        const fallbackBooks = await res2.json();
-        renderFallback(fallbackBooks);
-      } catch {
-        tableBody.innerHTML = '<tr><td colspan="6" class="text-center py-4" style="color:#e74c3c;">Bağlantı hatası.</td></tr>';
-      }
+      // Fallback removed to avoid showing default data
+      tableBody.innerHTML = '<tr><td colspan="6" class="text-center py-4" style="color:#e74c3c;">Bağlantı hatası.</td></tr>';
     }
-  }
-
-  function renderFallback(books) {
-    if (statTotal) statTotal.textContent = books.length;
-    if (statActive) statActive.textContent = books.length;
-    tableBody.innerHTML = '';
-
-    books.forEach(book => {
-      const row = document.createElement('tr');
-      const img = book.image || 'assets/images/book-placeholder.png';
-      row.innerHTML = `
-        <td><img src="${img}" class="book-thumb" onerror="this.style.display='none'"></td>
-        <td><span class="fw-bold">${book.title}</span><br><small style="color:#888;">${book.author}</small></td>
-        <td class="text-warning fw-bold">${Number(book.price).toFixed(2)} TL</td>
-        <td><span class="badge bg-secondary" style="font-size:0.75rem;">${book.category || '—'}</span></td>
-        <td><span class="badge-status badge-active">AKTİF</span></td>
-        <td>
-          <div class="action-btns">
-            <button class="action-btn edit-action" data-id="${book.id}" title="Düzenle"><i class="bi bi-pencil"></i></button>
-            <button class="action-btn delete-action" data-id="${book.id}" title="Sil"><i class="bi bi-trash-fill"></i></button>
-          </div>
-        </td>
-      `;
-      tableBody.appendChild(row);
-    });
-
-    attachListeners(books);
   }
 
   // ==============================
@@ -162,6 +143,8 @@ document.addEventListener('DOMContentLoaded', () => {
         form.price.value = book.price;
         form.category.value = book.category || 'Edebiyat';
         form.imageUrl.value = book.image || '';
+        form.pageCount.value = book.page_count || '';
+        form.description.value = book.description || '';
 
         openModal();
       });
@@ -200,16 +183,21 @@ document.addEventListener('DOMContentLoaded', () => {
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const bookData = {
-      title: form.title.value.trim(),
-      author: form.author.value.trim(),
-      price: parseFloat(form.price.value),
-      category: form.category.value,
-      imageUrl: form.imageUrl.value.trim(),
-      seller: sellerId
-    };
+    const formData = new FormData();
+    formData.append('title', form.title.value.trim());
+    formData.append('author', form.author.value.trim());
+    formData.append('price', form.price.value);
+    formData.append('category', form.category.value);
+    formData.append('imageUrl', form.imageUrl.value.trim());
+    formData.append('pageCount', form.pageCount.value || 0);
+    formData.append('description', form.description.value.trim());
+    formData.append('seller', sellerId);
+    
+    if (form.imageFile.files[0]) {
+      formData.append('imageFile', form.imageFile.files[0]);
+    }
 
-    if (!bookData.title || !bookData.author || !bookData.price) {
+    if (!form.title.value || !form.author.value || !form.price.value) {
       showToast('Lütfen tüm zorunlu alanları doldurun.', 'error');
       return;
     }
@@ -217,31 +205,39 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       let res;
       if (editingBookId) {
-        // GÜNCELLE (PUT)
+        const updateData = {
+          title: form.title.value.trim(),
+          author: form.author.value.trim(),
+          price: parseFloat(form.price.value),
+          category: form.category.value,
+          imageUrl: form.imageUrl.value.trim(),
+          pageCount: parseInt(form.pageCount.value) || 0,
+          description: form.description.value.trim()
+        };
+
         res = await fetch(`${API_URL}/${editingBookId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(bookData)
+          body: JSON.stringify(updateData)
         });
       } else {
-        // EKLE (POST)
         res = await fetch(API_URL, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(bookData)
+          body: formData
         });
       }
 
       if (res.ok) {
-        showToast(editingBookId ? `"${bookData.title}" güncellendi!` : `"${bookData.title}" eklendi!`, 'success');
+        showToast(editingBookId ? `"${form.title.value}" güncellendi!` : `"${form.title.value}" eklendi!`, 'success');
         closeModal();
         loadMyBooks();
       } else {
         const data = await res.json();
         showToast('Hata: ' + (data.message || 'Bilinmeyen hata'), 'error');
       }
-    } catch {
-      showToast('Sunucu bağlantı hatası. Lütfen backend çalıştığından emin olun.', 'error');
+    } catch (err) {
+      console.error(err);
+      showToast('Sunucu bağlantı hatası.', 'error');
     }
   });
 

@@ -38,6 +38,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       favs.push(id);
     }
     localStorage.setItem('favorites', JSON.stringify(favs));
+    if (window.syncFavoritesWithDB) window.syncFavoritesWithDB();
     return favs.includes(id);
   };
 
@@ -50,6 +51,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       cart.push({...book, quantity: 1});
     }
     localStorage.setItem('cart', JSON.stringify(cart));
+    if (window.syncCartWithDB) window.syncCartWithDB();
     updateCartCount();
   };
 
@@ -111,9 +113,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     try {
-      const response = await fetch('books.json');
+      const response = await fetch('http://localhost:3000/api/books');
       const allBooks = await response.json();
-      const favBooks = allBooks.filter(b => favIds.includes(b.id));
+      const favBooks = allBooks.filter(b => favIds.includes(parseInt(b.id)));
 
       grid.innerHTML = '';
       if (favBooks.length === 0) {

@@ -56,7 +56,7 @@ router.get('/seller/:sellerId', async (req, res) => {
 // Kitap Ekle
 router.post('/', upload.single('imageFile'), async (req, res) => {
   try {
-    const { title, author, category, price, description, seller, imageUrl } = req.body;
+    const { title, author, category, price, description, seller, imageUrl, pageCount } = req.body;
     let imagePath = imageUrl || 'assets/images/book-placeholder.png';
 
     if (req.file) {
@@ -64,8 +64,8 @@ router.post('/', upload.single('imageFile'), async (req, res) => {
     }
 
     const [result] = await pool.query(
-      'INSERT INTO books (title, author, category, price, description, seller_id, image) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [title, author, category, price, description, seller, imagePath]
+      'INSERT INTO books (title, author, page_count, category, price, description, seller_id, image) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      [title, author, pageCount || 0, category, price, description, seller, imagePath]
     );
 
     res.status(201).json({ id: result.insertId, title, author });
@@ -77,10 +77,10 @@ router.post('/', upload.single('imageFile'), async (req, res) => {
 // Kitap Güncelle
 router.put('/:id', async (req, res) => {
   try {
-    const { title, author, category, price, description, imageUrl } = req.body;
+    const { title, author, category, price, description, imageUrl, pageCount } = req.body;
     await pool.query(
-      'UPDATE books SET title = ?, author = ?, category = ?, price = ?, description = ?, image = ? WHERE id = ?',
-      [title, author, category, price, description || '', imageUrl || 'assets/images/book-placeholder.png', req.params.id]
+      'UPDATE books SET title = ?, author = ?, page_count = ?, category = ?, price = ?, description = ?, image = ? WHERE id = ?',
+      [title, author, pageCount || 0, category, price, description || '', imageUrl || 'assets/images/book-placeholder.png', req.params.id]
     );
     res.json({ message: 'Kitap başarıyla güncellendi.' });
   } catch (error) {
@@ -93,6 +93,44 @@ router.delete('/:id', async (req, res) => {
   try {
     await pool.query('DELETE FROM books WHERE id = ?', [req.params.id]);
     res.json({ message: 'Kitap başarıyla silindi.' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// ==============================
+// YORUMLAR (REVIEWS)
+// ==============================
+
+// Bir kitabın yorumlarını getir
+router.get('/:id/reviews', async (req, res) => {
+  try {
+    const [reviews] = await pool.query(
+      'SELECT * FROM reviews WHERE book_id = ? ORDER BY created_at DESC',
+      [req.params.id]
+    );
+    res.json(reviews);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Kitaba yorum yap
+router.post('/:id/reviews', async (req, res) => {
+  try {
+    const { user_id, user_name, rating, comment } = req.body;
+    const book_id = req.params.id;
+
+    if (!comment || !rating) {
+      return res.status(400).json({ message: 'Lütfen yorum ve puan giriniz.' });
+    }
+
+    const [result] = await pool.query(
+      'INSERT INTO reviews (book_id, user_id, user_name, rating, comment) VALUES (?, ?, ?, ?, ?)',
+      [book_id, user_id, user_name, rating, comment]
+    );
+
+    res.status(201).json({ id: result.insertId, message: 'Yorum eklendi.' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

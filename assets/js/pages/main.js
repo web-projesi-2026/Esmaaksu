@@ -70,6 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
       favs.push(id);
     }
     localStorage.setItem('favorites', JSON.stringify(favs));
+    if (window.syncFavoritesWithDB) window.syncFavoritesWithDB();
     return favs.includes(id);
   };
 
@@ -83,6 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
       cart.push({...book, quantity: 1});
     }
     localStorage.setItem('cart', JSON.stringify(cart));
+    if (window.syncCartWithDB) window.syncCartWithDB();
     updateCartCount();
   };
 
@@ -144,8 +146,8 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="card-body d-flex flex-column">
               <h5 class="card-title">${b.title}</h5>
               <p class="card-text">${b.author}</p>
-              ${starsHTML(b.rating)}
-              <small style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.75rem;">${b.reviewCount} değerlendirme</small>
+              ${starsHTML(b.rating || 5)}
+              <small style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.75rem;">${b.reviewCount || 0} değerlendirme</small>
               <a href="book-detail.html?id=${b.id}" class="btn btn-primary mt-auto" style="margin-top: 0.75rem !important;">
                 <i class="bi bi-eye me-1"></i>Detay
               </a>
@@ -229,44 +231,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-  // ── User State Handling ──
-  const updateAuthUI = () => {
-    const userId = localStorage.getItem('userId');
-    const loginBtns = document.querySelectorAll('a[href="login.html"]');
-    const registerBtns = document.querySelectorAll('a[href="register.html"]');
-    const personIcon = document.querySelector('a[href="javascript:navigateToProfile()"]')?.parentElement;
-    
-    if (userId) {
-      // Logged in: Hide login/register
-      loginBtns.forEach(btn => btn.parentElement.style.display = 'none');
-      registerBtns.forEach(btn => btn.parentElement.style.display = 'none');
-      if (personIcon) personIcon.style.display = 'block';
-      
-      // Add Logout button if not exists
-      if (!document.querySelector('.logout-btn')) {
-        const logoutLi = document.createElement('li');
-        logoutLi.className = 'nav-item ms-2';
-        logoutLi.innerHTML = `<a class="btn btn-outline-danger btn-sm logout-btn" href="#"><i class="bi bi-box-arrow-right me-1"></i>Çıkış</a>`;
-        document.querySelector('.navbar-nav').appendChild(logoutLi);
-        
-        logoutLi.querySelector('.logout-btn').addEventListener('click', (e) => {
-          e.preventDefault();
-          localStorage.removeItem('userId');
-          localStorage.removeItem('userRole');
-          window.location.reload();
-        });
-      }
-    } else {
-      // Not logged in: Show login/register, hide person icon
-      loginBtns.forEach(btn => btn.parentElement.style.display = 'block');
-      registerBtns.forEach(btn => btn.parentElement.style.display = 'block');
-      if (personIcon) personIcon.style.display = 'none';
-    }
-  };
-
-  updateAuthUI();
-
-  // ── Scroll reveal ──
+  // Scroll reveal
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {

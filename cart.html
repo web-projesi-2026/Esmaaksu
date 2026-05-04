@@ -200,88 +200,35 @@
 
     <div class="cart-layout">
       <div class="cart-items-list" id="cart-items">
-        <!-- Sample cart items -->
-        <div class="cart-item">
-          <div class="cart-item-image" style="background: linear-gradient(135deg, #667eea, #764ba2);">
-            <i class="bi bi-book"></i>
-          </div>
-          <div class="cart-item-info">
-            <div class="item-title">Suç ve Ceza</div>
-            <div class="item-author">Dostoyevski</div>
-          </div>
-          <div class="cart-item-actions">
-            <div class="item-price">₺45.90</div>
-            <div class="quantity-control">
-              <button><i class="bi bi-dash"></i></button>
-              <span class="qty-value">1</span>
-              <button><i class="bi bi-plus"></i></button>
-            </div>
-            <span class="remove-item"><i class="bi bi-trash3 me-1"></i>Kaldır</span>
-          </div>
-        </div>
-
-        <div class="cart-item">
-          <div class="cart-item-image" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
-            <i class="bi bi-book"></i>
-          </div>
-          <div class="cart-item-info">
-            <div class="item-title">Küçük Prens</div>
-            <div class="item-author">Saint-Exupéry</div>
-          </div>
-          <div class="cart-item-actions">
-            <div class="item-price">₺32.50</div>
-            <div class="quantity-control">
-              <button><i class="bi bi-dash"></i></button>
-              <span class="qty-value">2</span>
-              <button><i class="bi bi-plus"></i></button>
-            </div>
-            <span class="remove-item"><i class="bi bi-trash3 me-1"></i>Kaldır</span>
-          </div>
-        </div>
-
-        <div class="cart-item">
-          <div class="cart-item-image" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">
-            <i class="bi bi-book"></i>
-          </div>
-          <div class="cart-item-info">
-            <div class="item-title">Simyacı</div>
-            <div class="item-author">Paulo Coelho</div>
-          </div>
-          <div class="cart-item-actions">
-            <div class="item-price">₺28.00</div>
-            <div class="quantity-control">
-              <button><i class="bi bi-dash"></i></button>
-              <span class="qty-value">1</span>
-              <button><i class="bi bi-plus"></i></button>
-            </div>
-            <span class="remove-item"><i class="bi bi-trash3 me-1"></i>Kaldır</span>
-          </div>
-        </div>
+        <!-- Sepet elemanları JS ile buraya yüklenecek -->
       </div>
 
       <!-- Order Summary -->
-      <div class="order-summary">
+      <div class="order-summary" id="order-summary-container" style="display: none;">
         <h3><i class="bi bi-receipt me-2"></i>Sipariş Özeti</h3>
         <div class="summary-row">
-          <span>Ara Toplam (4 ürün)</span>
-          <span>₺138.90</span>
+          <span>Ara Toplam (<span id="total-qty-label">0</span> ürün)</span>
+          <span id="subtotal-price">₺0.00</span>
         </div>
         <div class="summary-row">
           <span>Kargo</span>
-          <span style="color: var(--accent-mint);">Ücretsiz</span>
-        </div>
-        <div class="summary-row">
-          <span>İndirim</span>
-          <span style="color: var(--accent-coral);">-₺10.00</span>
+          <span style="color: var(--accent-mint);" id="shipping-label">Ücretsiz</span>
         </div>
         <div class="summary-row total">
           <span>Toplam</span>
-          <span class="total-price" id="cart-total">₺128.90</span>
+          <span class="total-price" id="cart-total">₺0.00</span>
         </div>
-        <button class="btn btn-primary w-100">
+        <button class="btn btn-primary w-100" id="checkout-btn">
           <i class="bi bi-credit-card me-1"></i>Ödemeye Geç
         </button>
         <p class="secure-note"><i class="bi bi-shield-lock me-1"></i>Güvenli ödeme ile korunuyorsunuz</p>
+      </div>
+
+      <div id="empty-cart-msg" class="empty-cart" style="display: none; grid-column: 1 / -1;">
+        <i class="bi bi-cart-x"></i>
+        <h3>Sepetiniz boş</h3>
+        <p>Görünüşe göre henüz sepetinize bir kitap eklemediniz.</p>
+        <a href="index.html" class="btn btn-primary mt-3">Alışverişe Başla</a>
       </div>
     </div>
   </main>
@@ -299,45 +246,112 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
   <script src="assets/js/theme-toggle.js"></script>
   <script src="assets/js/scroll-top.js"></script>
+  <script src="assets/js/nav.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
+      const cartItemsContainer = document.getElementById('cart-items');
+      const emptyMsg = document.getElementById('empty-cart-msg');
+      const summaryContainer = document.getElementById('order-summary-container');
+      const subtotalEl = document.getElementById('subtotal-price');
+      const totalEl = document.getElementById('cart-total');
+      const qtyLabel = document.getElementById('total-qty-label');
+      const cartCountBadge = document.querySelector('.cart-count');
+
       function showToast(msg, type = 'info') {
         const c = document.getElementById('toast-container');
         const t = document.createElement('div');
         t.className = `toast-msg ${type}`;
-        t.innerHTML = `<i class="bi bi-${type === 'success' ? 'check-circle-fill' : 'info-circle-fill'}"></i> ${msg}`;
+        const icon = type === 'success' ? 'bi-check-circle-fill' : 'bi-info-circle-fill';
+        t.innerHTML = `<i class="bi ${icon}"></i> ${msg}`;
         c.appendChild(t);
         setTimeout(() => t.remove(), 3000);
       }
 
-      // Quantity controls
-      document.querySelectorAll('.quantity-control').forEach(ctrl => {
-        const minus = ctrl.querySelector('button:first-child');
-        const plus = ctrl.querySelector('button:last-child');
-        const val = ctrl.querySelector('.qty-value');
-        minus.addEventListener('click', () => {
-          let v = parseInt(val.textContent);
-          if (v > 1) val.textContent = v - 1;
-        });
-        plus.addEventListener('click', () => {
-          let v = parseInt(val.textContent);
-          val.textContent = v + 1;
-        });
+      function getCart() {
+        return JSON.parse(localStorage.getItem('cart')) || [];
+      }
+
+      function saveCart(cart) {
+        localStorage.setItem('cart', JSON.stringify(cart));
+        if (window.syncCartWithDB) window.syncCartWithDB();
+        updateCartUI();
+      }
+
+      function updateCartUI() {
+        const cart = getCart();
+        
+        if (cart.length === 0) {
+          cartItemsContainer.innerHTML = '';
+          emptyMsg.style.display = 'block';
+          summaryContainer.style.display = 'none';
+          if (cartCountBadge) cartCountBadge.textContent = '0';
+          return;
+        }
+
+        emptyMsg.style.display = 'none';
+        summaryContainer.style.display = 'block';
+
+        let subtotal = 0;
+        let totalItems = 0;
+
+        cartItemsContainer.innerHTML = cart.map((item, index) => {
+          const price = parseFloat(item.price) || 0;
+          subtotal += price * item.quantity;
+          totalItems += item.quantity;
+
+          const imageHTML = item.image 
+            ? `<img src="${item.image}" style="width:100%; height:100%; object-fit:cover; border-radius:8px;" onerror="this.style.display='none'">`
+            : `<i class="bi bi-book"></i>`;
+
+          return `
+            <div class="cart-item">
+              <div class="cart-item-image" style="background: linear-gradient(135deg, var(--primary), var(--primary-light));">
+                ${imageHTML}
+              </div>
+              <div class="cart-item-info">
+                <div class="item-title">${item.title}</div>
+                <div class="item-author">${item.author}</div>
+              </div>
+              <div class="cart-item-actions">
+                <div class="item-price">₺${(price * item.quantity).toFixed(2)}</div>
+                <div class="quantity-control">
+                  <button onclick="changeQty(${index}, -1)"><i class="bi bi-dash"></i></button>
+                  <span class="qty-value">${item.quantity}</span>
+                  <button onclick="changeQty(${index}, 1)"><i class="bi bi-plus"></i></button>
+                </div>
+                <span class="remove-item" onclick="removeItem(${index})"><i class="bi bi-trash3 me-1"></i>Kaldır</span>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        subtotalEl.textContent = `₺${subtotal.toFixed(2)}`;
+        totalEl.textContent = `₺${subtotal.toFixed(2)}`; // İndirim şimdilik yok
+        qtyLabel.textContent = totalItems;
+        if (cartCountBadge) cartCountBadge.textContent = totalItems;
+      }
+
+      window.changeQty = (index, delta) => {
+        const cart = getCart();
+        if (cart[index]) {
+          cart[index].quantity += delta;
+          if (cart[index].quantity < 1) cart[index].quantity = 1;
+          saveCart(cart);
+        }
+      };
+
+      window.removeItem = (index) => {
+        const cart = getCart();
+        cart.splice(index, 1);
+        saveCart(cart);
+        showToast('Ürün sepetten kaldırıldı.', 'info');
+      };
+
+      document.getElementById('checkout-btn')?.addEventListener('click', () => {
+        window.location.href = 'checkout.html';
       });
 
-      // Remove items
-      document.querySelectorAll('.remove-item').forEach(btn => {
-        btn.addEventListener('click', () => {
-          btn.closest('.cart-item').style.animation = 'fadeOut 0.3s ease forwards';
-          setTimeout(() => btn.closest('.cart-item').remove(), 300);
-          showToast('Ürün sepetten kaldırıldı.', 'info');
-        });
-      });
-
-      // Checkout
-      document.querySelector('.order-summary .btn')?.addEventListener('click', () => {
-        showToast('Ödeme sayfasına yönlendiriliyorsunuz...', 'success');
-      });
+      updateCartUI();
     });
   </script>
 </body>

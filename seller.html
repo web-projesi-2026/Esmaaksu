@@ -126,9 +126,21 @@
               <option value="Kırtasiye">Kırtasiye</option>
             </select>
           </div>
-          <div class="col-12">
-            <label class="form-label" style="color:#aaa;">Kapak Resmi (URL)</label>
+          <div class="col-md-6">
+            <label class="form-label" style="color:#aaa;">Kapak Resmi (Dosya)</label>
+            <input type="file" name="imageFile" class="form-control bg-dark border-secondary text-white" accept="image/*">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" style="color:#aaa;">Veya Kapak URL</label>
             <input type="url" name="imageUrl" class="form-control bg-dark border-secondary text-white" placeholder="https://...">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" style="color:#aaa;">Sayfa Sayısı</label>
+            <input type="number" name="pageCount" class="form-control bg-dark border-secondary text-white" placeholder="Örn: 320">
+          </div>
+          <div class="col-12">
+            <label class="form-label" style="color:#aaa;">Açıklama</label>
+            <textarea name="description" class="form-control bg-dark border-secondary text-white" rows="3" placeholder="Kitap hakkında kısa bilgi..."></textarea>
           </div>
           <div class="col-12 mt-4">
             <button type="submit" id="modal-submit-btn" class="btn btn-primary w-100 fw-bold py-2" style="font-size:1rem;">
