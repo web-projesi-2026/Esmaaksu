@@ -31,4 +31,4 @@ Bu proje, alıcı (buyer), satıcı (seller) ve yönetici (admin) rollerine sahi
 
 Frontend dosyalarını çalıştırmak için bir yerel sunucu (örneğin VS Code Live Server eklentisi) kullanabilirsiniz veya `frontend/index.html` dosyasını doğrudan tarayıcınızda açabilirsiniz.
 
-site linki: https://rafarasi.netlify.app/
+site linki: https://web-projesi-2026.github.io/Esmaaksu/
