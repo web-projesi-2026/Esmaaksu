@@ -60,6 +60,46 @@ document.addEventListener('DOMContentLoaded', () => {
     return gradients[index % gradients.length];
   }
 
+  // ── LocalStorage Helpers ──
+  const getFavorites = () => JSON.parse(localStorage.getItem('favorites')) || [];
+  const toggleFavorite = (id) => {
+    let favs = getFavorites();
+    if (favs.includes(id)) {
+      favs = favs.filter(fId => fId !== id);
+    } else {
+      favs.push(id);
+    }
+    localStorage.setItem('favorites', JSON.stringify(favs));
+    if (window.syncFavoritesWithDB) window.syncFavoritesWithDB();
+    return favs.includes(id);
+  };
+
+  const getCart = () => JSON.parse(localStorage.getItem('cart')) || [];
+  const addToCart = (book) => {
+    let cart = getCart();
+    const existing = cart.find(item => item.id === book.id);
+    if (existing) {
+      existing.quantity += 1;
+    } else {
+      cart.push({...book, quantity: 1});
+    }
+    localStorage.setItem('cart', JSON.stringify(cart));
+    if (window.syncCartWithDB) window.syncCartWithDB();
+    updateCartCount();
+  };
+
+  const updateCartCount = () => {
+    const countEl = document.querySelector('.cart-count');
+    if (countEl) {
+      const cart = getCart();
+      const total = cart.reduce((sum, item) => sum + item.quantity, 0);
+      countEl.textContent = total;
+    }
+  };
+
+  // Sayfa yüklendiğinde sepet sayısını güncelle
+  updateCartCount();
+
   // ── Load books ──
   if (typeof getMockBooks === 'function') {
     let allBooks = [];
@@ -72,6 +112,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const col = document.createElement('div');
         col.className = 'col-sm-6 col-md-4 col-lg-3';
         
+        // Favori durumunu kontrol et
+        const favs = getFavorites();
+        const isFav = favs.includes(b.id);
+        const favIcon = isFav ? 'bi-heart-fill' : 'bi-heart';
+        const favColor = isFav ? 'var(--accent-rose, #e63946)' : 'var(--text-secondary, #6c757d)';
+
         const badgeHTML = b.isNew 
           ? '<span class="tag tag-mint" style="position:absolute;top:12px;left:12px;z-index:2;">Yeni</span>'
           : b.isBestSeller 
@@ -83,10 +129,13 @@ document.addEventListener('DOMContentLoaded', () => {
           : `<div style="width:100%; height:100%; ${bookGradient(b.id)} display:flex; align-items:center; justify-content:center;"><i class="bi bi-book" style="font-size:4rem; color:rgba(255,255,255,0.3);"></i></div>`;
 
         col.innerHTML = `
-          <div class="card h-100">
+          <div class="card h-100" style="cursor: pointer;" onclick="window.location.href='book-detail.html?id=${b.id}'">
             <div style="height:220px; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden;">
               ${imageHTML}
               ${badgeHTML}
+              <button class="btn btn-sm btn-light fav-btn" data-id="${b.id}" style="position:absolute; top:12px; right:12px; z-index:2; border-radius:50%; width:32px; height:32px; padding:0; display:flex; align-items:center; justify-content:center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <i class="bi ${favIcon}" style="color: ${favColor}; font-size: 1rem; transition: color 0.3s ease;"></i>
+              </button>
               <div class="price-tag">${b.price} TL</div>
             </div>
             <div class="card-overlay">
@@ -97,8 +146,8 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="card-body d-flex flex-column">
               <h5 class="card-title">${b.title}</h5>
               <p class="card-text">${b.author}</p>
-              ${starsHTML(b.rating)}
-              <small style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.75rem;">${b.reviewCount} değerlendirme</small>
+              ${starsHTML(b.rating || 5)}
+              <small style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.75rem;">${b.reviewCount || 0} değerlendirme</small>
               <a href="book-detail.html?id=${b.id}" class="btn btn-primary mt-auto" style="margin-top: 0.75rem !important;">
                 <i class="bi bi-eye me-1"></i>Detay
               </a>
@@ -113,12 +162,33 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.addEventListener('click', (e) => {
           e.preventDefault();
           e.stopPropagation();
-          const countEl = document.querySelector('.cart-count');
-          if (countEl) {
-            let n = parseInt(countEl.textContent) || 0;
-            countEl.textContent = n + 1;
+          const bookId = parseInt(btn.getAttribute('data-id'));
+          const book = allBooks.find(b => b.id === bookId);
+          if (book) {
+            addToCart(book);
+            showToast('Kitap sepete eklendi!', 'success');
           }
-          showToast('Kitap sepete eklendi!', 'success');
+        });
+      });
+
+      // Attach favorite buttons
+      document.querySelectorAll('.fav-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const bookId = parseInt(btn.getAttribute('data-id'));
+          const isNowFav = toggleFavorite(bookId);
+          
+          const icon = btn.querySelector('i');
+          if (isNowFav) {
+            icon.classList.replace('bi-heart', 'bi-heart-fill');
+            icon.style.color = 'var(--accent-rose, #e63946)';
+            showToast('Favorilere eklendi!', 'success');
+          } else {
+            icon.classList.replace('bi-heart-fill', 'bi-heart');
+            icon.style.color = 'var(--text-secondary, #6c757d)';
+            showToast('Favorilerden çıkarıldı!', 'info');
+          }
         });
       });
     };
@@ -157,22 +227,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ── Favorite link ──
-  const favLink = document.querySelector('.bi-heart')?.closest('a');
-  if (favLink) {
-    favLink.addEventListener('click', e => {
-      e.preventDefault();
-      showToast('Favorilere eklendi!', 'success');
-      const icon = favLink.querySelector('.bi-heart');
-      if (icon) {
-        icon.classList.toggle('bi-heart');
-        icon.classList.toggle('bi-heart-fill');
-        icon.style.color = icon.classList.contains('bi-heart-fill') ? 'var(--accent-rose)' : '';
-      }
-    });
-  }
+  // Header favorite navigation is now handled by direct href to favorites.html
 
-  // ── Scroll reveal ──
+
+
+  // Scroll reveal
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {

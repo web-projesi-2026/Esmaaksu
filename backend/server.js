@@ -8,8 +8,8 @@ const fs = require('fs');
 // Environment variables
 dotenv.config();
 
-// Connect to database
-connectDB();
+// MySQL bağlantı kontrolü (zaten database.js içinde yapılıyor ama burada da log basabiliriz)
+console.log('Sunucu başlatılıyor, MySQL veri tabanı hazırlanıyor...');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -22,7 +22,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 // Frontend static files
-app.use(express.static(path.join(__dirname, '../frontend')));
+app.use(express.static(path.join(__dirname, '../')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); // Fotoğraf yüklemeleri için
 
 // Create uploads folder if it doesn't exist

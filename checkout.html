@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RafArası — Ödeme</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="assets/css/global.css">
+  <style>
+    :root {
+      --checkout-step-active: var(--primary);
+      --checkout-step-inactive: var(--bg-glass-strong);
+    }
+    .checkout-container {
+      max-width: 1200px;
+      margin: 40px auto;
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: 30px;
+    }
+    @media (max-width: 991px) {
+      .checkout-container { grid-template-columns: 1fr; }
+    }
+
+    /* Steps Header */
+    .steps-header {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 30px;
+    }
+    .step-item {
+      flex: 1;
+      padding: 15px;
+      text-align: center;
+      background: var(--bg-glass);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      color: var(--text-muted);
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .step-item.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary-light);
+      box-shadow: var(--shadow-glow);
+    }
+    .step-item.completed {
+      background: var(--accent-mint);
+      color: white;
+      border-color: var(--accent-mint);
+    }
+
+    /* Checkout Card */
+    .checkout-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-lg);
+      padding: 30px;
+      box-shadow: var(--shadow-soft);
+    }
+    .checkout-section-title {
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-primary);
+    }
+
+    /* Summary Card */
+    .summary-card {
+      background: var(--bg-glass);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-lg);
+      padding: 25px;
+      position: sticky;
+      top: 100px;
+    }
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+    }
+    .summary-total {
+      border-top: 1px solid var(--border-glass);
+      margin-top: 20px;
+      padding-top: 20px;
+      display: flex;
+      justify-content: space-between;
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: var(--accent-gold);
+    }
+
+    /* Form Styles */
+    .form-label { font-weight: 500; color: var(--text-secondary); margin-bottom: 8px;}
+    .form-control {
+      background: var(--bg-glass) !important;
+      border: 1px solid var(--border-glass) !important;
+      color: var(--text-primary) !important;
+      border-radius: var(--radius-md);
+      padding: 12px;
+    }
+    .form-control:focus {
+      border-color: var(--primary) !important;
+      box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.15);
+    }
+
+    /* Option Cards (Kargo / Ödeme) */
+    .option-card {
+      background: var(--bg-glass);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+    .option-card:hover {
+      border-color: var(--primary);
+      background: var(--bg-glass-strong);
+    }
+    .option-card.active {
+      border-color: var(--primary);
+      background: rgba(108, 92, 231, 0.1);
+      box-shadow: 0 0 15px rgba(108, 92, 231, 0.1);
+    }
+    .option-card input[type="radio"] {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--primary);
+    }
+
+    .btn-next {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      border: none;
+      color: white;
+      padding: 15px;
+      border-radius: var(--radius-full);
+      font-weight: 600;
+      margin-top: 20px;
+      width: 100%;
+      box-shadow: var(--shadow-btn);
+      transition: all 0.3s;
+    }
+    .btn-next:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(108, 92, 231, 0.4);
+    }
+
+    .back-btn {
+      color: var(--text-muted);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-bottom: 20px;
+      font-weight: 500;
+    }
+    .back-btn:hover { color: var(--text-primary); }
+  </style>
+</head>
+<body data-theme="dark">
+  <header class="site-header">
+    <nav class="navbar navbar-expand-lg sticky-top">
+      <div class="container">
+        <a class="navbar-brand" href="index.html"><i class="bi bi-book-half me-2"></i>RafArası</a>
+        <div class="ms-auto d-flex align-items-center">
+            <span class="text-muted small me-2"><i class="bi bi-shield-check me-1"></i>Güvenli Ödeme</span>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div class="checkout-container">
+      <!-- Left: Checkout Forms -->
+      <div class="checkout-left">
+        <div class="steps-header">
+          <div class="step-item active" id="step1-tab">
+            <span class="badge rounded-pill bg-light text-dark me-2">1</span> Adres Bilgileri
+          </div>
+          <div class="step-item" id="step2-tab">
+            <span class="badge rounded-pill bg-light text-dark me-2">2</span> Ödeme Bilgileri
+          </div>
+        </div>
+
+        <!-- Step 1: Address -->
+        <div id="step1-content" class="checkout-card">
+          <div id="saved-addresses-section" style="display: none;">
+            <h3 class="checkout-section-title"><i class="bi bi-journal-bookmark"></i> Kayıtlı Adreslerim</h3>
+            <div id="saved-addresses-list" class="row g-3 mb-4">
+                <!-- Kayıtlı adresler buraya gelecek -->
+            </div>
+            <button class="btn btn-outline-primary btn-sm mb-4" id="btn-show-new-address">
+                <i class="bi bi-plus-lg me-1"></i> Yeni Adres Ekle
+            </button>
+          </div>
+
+          <div id="new-address-form-container">
+            <h3 class="checkout-section-title"><i class="bi bi-geo-alt"></i> <span id="address-form-title">Teslimat Adresi</span></h3>
+            <form id="address-form">
+                <div class="row g-3">
+                <div class="col-12" id="address-title-div">
+                    <label class="form-label">Adres Başlığı (Örn: Evim, İş Yerim)</label>
+                    <input type="text" class="form-control" id="addr-title" placeholder="Evim" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Ad</label>
+                    <input type="text" class="form-control" id="addr-name" placeholder="Adınız" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Soyad</label>
+                    <input type="text" class="form-control" id="addr-surname" placeholder="Soyadınız" required>
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Telefon</label>
+                    <input type="tel" class="form-control" id="addr-phone" placeholder="05xx xxx xx xx" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Şehir</label>
+                    <select class="form-control" id="addr-city" required>
+                    <option value="">Şehir Seçiniz</option>
+                    <option>İstanbul</option>
+                    <option>Ankara</option>
+                    <option>İzmir</option>
+                    <option>Bursa</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">İlçe</label>
+                    <input type="text" class="form-control" id="addr-district" placeholder="İlçe" required>
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Tam Adres</label>
+                    <textarea class="form-control" id="addr-full" rows="3" placeholder="Sokak, Mahalle, Bina No..." required></textarea>
+                </div>
+                </div>
+
+                <div class="mt-3 form-check">
+                    <input class="form-check-input" type="checkbox" id="save-address-check" checked>
+                    <label class="form-check-label small" for="save-address-check">Bu adresi profilime kaydet</label>
+                </div>
+
+                <button type="submit" class="btn-next mt-4">Ödeme Bilgilerine Geç <i class="bi bi-arrow-right ms-2"></i></button>
+            </form>
+          </div>
+
+            <h3 class="checkout-section-title mt-5"><i class="bi bi-truck"></i> Kargo Seçenekleri</h3>
+            <div class="option-card active">
+              <input type="radio" name="shipping" checked>
+              <div class="flex-grow-1">
+                <div class="fw-bold">Yurtiçi Kargo</div>
+                <div class="small text-muted">2-3 İş günü içinde teslimat</div>
+              </div>
+              <div class="fw-bold text-success">Ücretsiz</div>
+            </div>
+            <div class="option-card">
+              <input type="radio" name="shipping">
+              <div class="flex-grow-1">
+                <div class="fw-bold">Aras Kargo</div>
+                <div class="small text-muted">3-4 İş günü içinde teslimat</div>
+              </div>
+              <div class="fw-bold text-success">Ücretsiz</div>
+            </div>
+
+            <button type="submit" class="btn-next">Ödeme Bilgilerine Geç <i class="bi bi-arrow-right ms-2"></i></button>
+          </form>
+        </div>
+
+        <!-- Step 2: Payment (Hidden initially) -->
+        <div id="step2-content" class="checkout-card" style="display: none;">
+          <div class="back-btn" id="go-back-step1"><i class="bi bi-arrow-left"></i> Adres Bilgilerine Dön</div>
+          <h3 class="checkout-section-title"><i class="bi bi-credit-card"></i> Kart Bilgileri</h3>
+          
+          <div class="option-card active mb-4">
+             <i class="bi bi-credit-card-2-front fs-3"></i>
+             <div class="flex-grow-1">
+                <div class="fw-bold">Online Kredi / Banka Kartı</div>
+                <div class="small text-muted">iyzico güvencesiyle 3D Secure ödeme</div>
+             </div>
+          </div>
+
+          <form id="payment-form">
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label">Kart Üzerindeki İsim</label>
+                <input type="text" class="form-control" placeholder="AD SOYAD" required>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Kart Numarası</label>
+                <input type="text" class="form-control" placeholder="0000 0000 0000 0000" maxlength="19" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Son Kullanma (AA/YY)</label>
+                <input type="text" class="form-control" placeholder="01/28" maxlength="5" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">CVV</label>
+                <input type="password" class="form-control" placeholder="***" maxlength="3" required>
+              </div>
+            </div>
+
+            <div class="mt-4 p-3 bg-glass rounded">
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="checkbox" id="save-card">
+                    <label class="form-check-label small" for="save-card">
+                        Kartımı güvenle kaydet (Bir sonraki alışverişinizde kolaylık sağlar)
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="kvkk" required>
+                    <label class="form-check-label small" for="kvkk">
+                        Mesafeli Satış Sözleşmesini ve Ön Bilgilendirme Formunu okudum, onaylıyorum.
+                    </label>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-next" id="complete-order-btn">Ödemeyi Tamamla <i class="bi bi-lock-fill ms-2"></i></button>
+          </form>
+          
+          <div class="text-center mt-4">
+              <img src="https://www.bkmkitap.com/Data/EditorFiles/footer/iyzico_logo_renkli_yeni.png" alt="iyzico" style="height: 30px; opacity: 0.8;">
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Summary -->
+      <div class="checkout-right">
+        <div class="summary-card">
+          <h3 class="mb-4">Sipariş Özeti</h3>
+          <div id="checkout-items-preview" class="mb-4">
+            <!-- Items will be injected here -->
+          </div>
+          
+          <div class="summary-item">
+            <span>Ara Toplam</span>
+            <span id="summary-subtotal">₺0.00</span>
+          </div>
+          <div class="summary-item">
+            <span>Kargo</span>
+            <span class="text-success">Ücretsiz</span>
+          </div>
+          <div class="summary-total">
+            <span>Toplam</span>
+            <span id="summary-total">₺0.00</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div class="toast-container" id="toast-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const cart = JSON.parse(localStorage.getItem('cart')) || [];
+      if (cart.length === 0) {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      // Load Summary
+      const renderSummary = () => {
+        const preview = document.getElementById('checkout-items-preview');
+        let subtotal = 0;
+        
+        preview.innerHTML = cart.map(item => {
+          const price = parseFloat(item.price) || 0;
+          subtotal += price * item.quantity;
+          return `
+            <div class="d-flex align-items-center gap-3 mb-3 border-bottom border-secondary pb-2">
+                <div style="width:50px; height:60px; background:var(--bg-glass-strong); border-radius:4px; overflow:hidden;">
+                    <img src="${item.image || '/assets/images/book-placeholder.png'}" style="width:100%; height:100%; object-fit:cover;">
+                </div>
+                <div class="flex-grow-1">
+                    <div class="small fw-bold text-truncate" style="max-width:200px;">${item.title}</div>
+                    <div class="small text-muted">${item.quantity} Adet x ₺${price.toFixed(2)}</div>
+                </div>
+            </div>
+          `;
+        }).join('');
+
+        document.getElementById('summary-subtotal').textContent = `₺${subtotal.toFixed(2)}`;
+        document.getElementById('summary-total').textContent = `₺${subtotal.toFixed(2)}`;
+      };
+
+      renderSummary();
+
+      // Address Management Logic
+      let selectedAddressId = null;
+      const savedAddressesSection = document.getElementById('saved-addresses-section');
+      const savedAddressesList = document.getElementById('saved-addresses-list');
+      const newAddressFormContainer = document.getElementById('new-address-form-container');
+      const userId = localStorage.getItem('userId');
+
+      const loadAddresses = async () => {
+        if (!userId) return;
+        try {
+          const res = await fetch(`http://localhost:3000/api/users/addresses/${userId}`);
+          const addresses = await res.json();
+          if (addresses.length > 0) {
+            savedAddressesSection.style.display = 'block';
+            newAddressFormContainer.style.display = 'none';
+            
+            savedAddressesList.innerHTML = addresses.map(addr => `
+                <div class="col-md-6">
+                    <div class="option-card address-card" data-id="${addr.id}">
+                        <div class="flex-grow-1">
+                            <div class="fw-bold"><i class="bi bi-house-door me-2"></i>${addr.title}</div>
+                            <div class="small mt-1 text-white">${addr.full_name}</div>
+                            <div class="small text-muted">${addr.phone}</div>
+                            <div class="small text-muted">${addr.city} / ${addr.district}</div>
+                        </div>
+                        <i class="bi bi-check-circle-fill check-icon text-primary" style="display:none;"></i>
+                    </div>
+                </div>
+            `).join('');
+
+            // Click listener for address cards
+            document.querySelectorAll('.address-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    document.querySelectorAll('.address-card').forEach(c => {
+                        c.classList.remove('active');
+                        c.querySelector('.check-icon').style.display = 'none';
+                    });
+                    card.classList.add('active');
+                    card.querySelector('.check-icon').style.display = 'block';
+                    selectedAddressId = card.dataset.id;
+                });
+            });
+          }
+        } catch (err) {
+          console.error('Adresler yüklenemedi:', err);
+        }
+      };
+
+      loadAddresses();
+
+      document.getElementById('btn-show-new-address').addEventListener('click', () => {
+          newAddressFormContainer.style.display = 'block';
+          savedAddressesSection.style.display = 'none';
+          selectedAddressId = null;
+      });
+
+      const step1Content = document.getElementById('step1-content');
+      const step2Content = document.getElementById('step2-content');
+      const step1Tab = document.getElementById('step1-tab');
+      const step2Tab = document.getElementById('step2-tab');
+
+      const validateStep1 = () => {
+        if (selectedAddressId) return true;
+        const form = document.getElementById('address-form');
+        return form.checkValidity();
+      };
+
+      const goToStep2 = async () => {
+        if (!validateStep1()) {
+            if (!selectedAddressId) document.getElementById('address-form').reportValidity();
+            else alert('Lütfen bir adres seçin.');
+            return;
+        }
+
+        // Yeni adres girildiyse ve kaydet seçiliyse
+        if (!selectedAddressId && document.getElementById('save-address-check').checked) {
+            try {
+                await fetch('http://localhost:3000/api/users/addresses', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userId,
+                        title: document.getElementById('addr-title').value,
+                        fullName: document.getElementById('addr-name').value + ' ' + document.getElementById('addr-surname').value,
+                        phone: document.getElementById('addr-phone').value,
+                        city: document.getElementById('addr-city').value,
+                        district: document.getElementById('addr-district').value,
+                        fullAddress: document.getElementById('addr-full').value
+                    })
+                });
+            } catch (err) { console.error('Adres kaydedilemedi:', err); }
+        }
+
+        step1Content.style.display = 'none';
+        step2Content.style.display = 'block';
+        step1Tab.classList.remove('active');
+        step1Tab.classList.add('completed');
+        step2Tab.classList.add('active');
+        window.scrollTo(0,0);
+      };
+
+      const goToStep1 = () => {
+        step1Content.style.display = 'block';
+        step2Content.style.display = 'none';
+        step1Tab.classList.add('active');
+        step1Tab.classList.remove('completed');
+        step2Tab.classList.remove('active');
+        window.scrollTo(0,0);
+      };
+
+      document.getElementById('address-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        goToStep2();
+      });
+
+      document.getElementById('step1-tab').addEventListener('click', goToStep1);
+      document.getElementById('step2-tab').addEventListener('click', goToStep2);
+      document.getElementById('go-back-step1').addEventListener('click', goToStep1);
+
+      // Complete Order
+      document.getElementById('payment-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('complete-order-btn');
+        const saveCardChecked = document.getElementById('save-card')?.checked;
+        const userId = localStorage.getItem('userId');
+
+        // Form Verileri
+        const cardHolder = e.target.querySelector('input[placeholder="AD SOYAD"]').value;
+        const cardNumber = e.target.querySelector('input[placeholder="0000 0000 0000 0000"]').value;
+        const expiryDate = e.target.querySelector('input[placeholder="01/28"]').value;
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> İşleniyor...';
+
+        // Kartı kaydet seçeneği aktifse API'ye gönder
+        if (saveCardChecked && userId) {
+          try {
+            await fetch('http://localhost:3000/api/users/saved-cards', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                userId,
+                cardHolder,
+                cardNumber,
+                expiryDate
+              })
+            });
+          } catch (err) {
+            console.error('Kart kaydedilemedi:', err);
+          }
+        }
+
+        setTimeout(() => {
+          localStorage.removeItem('cart');
+          // Success Feedback
+          const container = document.getElementById('toast-container');
+          const toast = document.createElement('div');
+          toast.className = 'toast-msg success';
+          toast.innerHTML = '<i class="bi bi-check-circle-fill"></i> Siparişiniz başarıyla alındı! Teşekkür ederiz.';
+          container.appendChild(toast);
+
+          setTimeout(() => {
+            window.location.href = 'index.html';
+          }, 3000);
+        }, 2000);
+      });
+    });
+  </script>
+</body>
+</html>

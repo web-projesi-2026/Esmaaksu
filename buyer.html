@@ -13,6 +13,12 @@
   <link rel="stylesheet" href="assets/css/layout.css">
   <link rel="stylesheet" href="assets/css/components.css">
   <link rel="stylesheet" href="assets/css/pages/buyer.css">
+  <script>
+    // Alıcı paneli istenmediği için ana sayfaya yönlendir
+    if (localStorage.getItem('userRole') !== 'seller' && localStorage.getItem('userRole') !== 'admin') {
+      window.location.href = 'index.html';
+    }
+  </script>
 </head>
 <body>
   <header class="site-header">
@@ -30,8 +36,8 @@
             </div>
           </form>
           <ul class="navbar-nav mb-2 mb-lg-0 align-items-center">
-            <li class="nav-item"><a class="nav-link" href="#"><i class="bi bi-heart"></i></a></li>
-            <li class="nav-item"><a class="nav-link" href="#"><i class="bi bi-person-fill" style="color: var(--primary-light);"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="favorites.html" title="Favoriler"><i class="bi bi-heart"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="javascript:navigateToProfile()" title="Profil"><i class="bi bi-person-fill" style="color: var(--primary-light);"></i></a></li>
             <li class="nav-item position-relative">
               <a class="nav-link" href="cart.html"><i class="bi bi-bag"></i></a>
               <span class="cart-count position-absolute top-0 start-100 translate-middle badge rounded-pill">0</span>
@@ -52,12 +58,12 @@
         <div class="sidebar-header">
           <div class="sidebar-avatar"><i class="bi bi-person"></i></div>
           <div class="sidebar-name" id="buyer-name">Kullanıcı</div>
-          <div class="sidebar-role">Alıcı Hesabı</div>
+          <div class="sidebar-role" style="color: var(--primary-light); font-weight: 700;">ALICI HESABI</div>
         </div>
         <ul class="sidebar-nav">
           <li><a href="#" class="active"><i class="bi bi-grid"></i> Genel Bakış</a></li>
           <li><a href="#"><i class="bi bi-bag-check"></i> Siparişlerim</a></li>
-          <li><a href="#"><i class="bi bi-heart"></i> Favorilerim</a></li>
+          <li><a href="favorites.html"><i class="bi bi-heart"></i> Favorilerim</a></li>
           <li><a href="#"><i class="bi bi-geo-alt"></i> Adreslerim</a></li>
           <li><a href="#"><i class="bi bi-bell"></i> Bildirimler</a></li>
           <li><a href="#"><i class="bi bi-gear"></i> Ayarlar</a></li>

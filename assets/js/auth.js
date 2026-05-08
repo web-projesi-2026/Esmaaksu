@@ -62,15 +62,29 @@ document.addEventListener('DOMContentLoaded', () => {
         if (response.ok) {
           showToast(`${data.name} olarak giriş yapıldı. Yönlendiriliyorsunuz...`, 'success');
           // Giriş yapan kullanıcının ID ve rol bilgisini localStorage'a kaydediyoruz
-          localStorage.setItem('userId', data._id);
+          localStorage.setItem('userId', data.id);
           localStorage.setItem('userRole', data.role);
+          localStorage.setItem('userName', data.name);
+
+          // Sepet ve Favorileri Veritabanından Getir
+          try {
+            const syncRes = await fetch(`http://localhost:3000/api/users/sync-data/${data.id}`);
+            if (syncRes.ok) {
+              const syncData = await syncRes.json();
+              localStorage.setItem('cart', JSON.stringify(syncData.cart || []));
+              localStorage.setItem('favorites', JSON.stringify(syncData.favorites || []));
+              if (window.updateCartCount) window.updateCartCount();
+            }
+          } catch (syncErr) {
+            console.error('Data sync failed:', syncErr);
+          }
           
           if (data.role === 'admin') {
-             setTimeout(() => window.location.href = 'admin.html', 1500);
+             setTimeout(() => window.location.href = 'admin.html', 1000);
           } else if (data.role === 'seller') {
-             setTimeout(() => window.location.href = 'seller.html', 1500);
+             setTimeout(() => window.location.href = 'seller.html', 1000);
           } else {
-             setTimeout(() => window.location.href = 'buyer.html', 1500);
+             setTimeout(() => window.location.href = 'index.html', 1000);
           }
         } else {
           showToast(data.message || 'Giriş başarısız.', 'error');
@@ -112,8 +126,23 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const data = await response.json();
         if (response.ok) {
-          showToast(`Hoşgeldiniz, ${data.name}! Kayıt başarılı. Giriş sayfasına yönlendiriliyorsunuz...`, 'success');
-          setTimeout(() => window.location.href = 'login.html', 1500);
+          showToast(`Hoşgeldiniz, ${data.name}! Kayıt başarılı. Panele yönlendiriliyorsunuz...`, 'success');
+          
+          // Otomatik Giriş: Bilgileri localStorage'a kaydet
+          localStorage.setItem('userId', data.id);
+          localStorage.setItem('userRole', data.role);
+          localStorage.setItem('userName', data.name);
+
+          // Yeni kayıt olan kullanıcı için localstorage'ı veritabanıyla senkronize et (Eğer kayıt olmadan önce sepete bir şeyler eklediyse)
+          if (window.syncCartWithDB) await window.syncCartWithDB();
+          if (window.syncFavoritesWithDB) await window.syncFavoritesWithDB();
+          
+          // Rolüne göre yönlendir
+          if (data.role === 'seller') {
+            setTimeout(() => window.location.href = 'seller.html', 1000);
+          } else {
+            setTimeout(() => window.location.href = 'index.html', 1000);
+          }
         } else {
           showToast(data.message || 'Kayıt başarısız.', 'error');
         }
