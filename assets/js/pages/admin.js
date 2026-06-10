@@ -1,4 +1,20 @@
 document.addEventListener('DOMContentLoaded', () => {
+  const userId = localStorage.getItem('userId');
+  const userName = localStorage.getItem('userName');
+  const userProfileImage = localStorage.getItem('userProfileImage');
+
+  // Profil bilgilerini yükle
+  const nameEl = document.getElementById('admin-name');
+  const avatarEl = document.getElementById('admin-avatar');
+
+  if (nameEl) nameEl.textContent = userName || 'Admin';
+  if (avatarEl && userProfileImage) {
+    avatarEl.style.backgroundImage = `url('${userProfileImage}')`;
+    avatarEl.innerHTML = '';
+  } else if (avatarEl && userName) {
+    avatarEl.innerHTML = userName.charAt(0).toUpperCase();
+  }
+
   // Toast helper
   function showToast(message, type = 'info') {
     let container = document.getElementById('toast-container');

@@ -61,17 +61,18 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ── LocalStorage Helpers ──
-  const getFavorites = () => JSON.parse(localStorage.getItem('favorites')) || [];
+  const getFavorites = () => (JSON.parse(localStorage.getItem('favorites')) || []).map(String);
   const toggleFavorite = (id) => {
+    const strId = String(id);
     let favs = getFavorites();
-    if (favs.includes(id)) {
-      favs = favs.filter(fId => fId !== id);
+    if (favs.includes(strId)) {
+      favs = favs.filter(fId => fId !== strId);
     } else {
-      favs.push(id);
+      favs.push(strId);
     }
     localStorage.setItem('favorites', JSON.stringify(favs));
     if (window.syncFavoritesWithDB) window.syncFavoritesWithDB();
-    return favs.includes(id);
+    return favs.includes(strId);
   };
 
   const getCart = () => JSON.parse(localStorage.getItem('cart')) || [];
@@ -114,7 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Favori durumunu kontrol et
         const favs = getFavorites();
-        const isFav = favs.includes(b.id);
+        const isFav = favs.includes(String(b.id));
         const favIcon = isFav ? 'bi-heart-fill' : 'bi-heart';
         const favColor = isFav ? 'var(--accent-rose, #e63946)' : 'var(--text-secondary, #6c757d)';
 
@@ -176,7 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.addEventListener('click', (e) => {
           e.preventDefault();
           e.stopPropagation();
-          const bookId = parseInt(btn.getAttribute('data-id'));
+          const bookId = String(btn.getAttribute('data-id'));
           const isNowFav = toggleFavorite(bookId);
           
           const icon = btn.querySelector('i');
@@ -195,7 +196,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     getMockBooks().then(books => {
       allBooks = books;
-      render(allBooks);
+      
+      // URL'den kategori parametresini kontrol et
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlCategory = urlParams.get('category');
+      
+      if (urlCategory !== null) {
+        currentCategory = urlCategory;
+        // İlgili linki aktif yap
+        const targetLink = Array.from(document.querySelectorAll('.category-nav a, .category-nav .badge'))
+          .find(l => l.dataset.category === urlCategory);
+        if (targetLink) {
+          document.querySelectorAll('.category-nav a, .category-nav .badge').forEach(l => l.classList.remove('active'));
+          targetLink.classList.add('active');
+        }
+        const filtered = filterBooks(allBooks, {category: currentCategory});
+        render(filtered);
+      } else {
+        render(allBooks);
+      }
     });
 
     // Search handler
@@ -210,21 +229,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
-    // Category filter
-    const catLinks = document.querySelectorAll('.category-nav a');
-    catLinks.forEach(link => {
-      link.addEventListener('click', e => {
-        e.preventDefault();
-        catLinks.forEach(l => l.classList.remove('active'));
-        link.classList.add('active');
-        currentCategory = link.textContent.trim();
-        const filtered = filterBooks(allBooks, {
-          query: searchInput ? searchInput.value : '', 
-          category: currentCategory
-        });
-        render(filtered);
-      });
-    });
+    // Category filter logic removed from main.js to use category.html
   }
 
   // Header favorite navigation is now handled by direct href to favorites.html

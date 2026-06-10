@@ -126,4 +126,6 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Favorites sync failed:', err);
         }
     };
+
+    // Global Category Handler logic removed to use direct href to category.html
 });

@@ -11,10 +11,19 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Update UI with user name
-  const sidebarName = document.getElementById('sidebar-name');
+  const sidebarName = document.getElementById('seller-sidebar-name');
+  const sidebarAvatar = document.getElementById('seller-avatar');
   const welcomeText = document.getElementById('welcome-text');
+  const userProfileImage = localStorage.getItem('userProfileImage');
+
   if (sidebarName) sidebarName.textContent = userName;
   if (welcomeText) welcomeText.textContent = `Merhaba 👋 ${userName}`;
+  if (sidebarAvatar && userProfileImage) {
+    sidebarAvatar.style.backgroundImage = `url('${userProfileImage}')`;
+    sidebarAvatar.innerHTML = '';
+  } else if (sidebarAvatar && userName) {
+    sidebarAvatar.textContent = userName.charAt(0).toUpperCase();
+  }
 
   // Toast Helper
   function showToast(message, type = 'info') {
