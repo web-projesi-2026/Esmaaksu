@@ -8,22 +8,22 @@
 /* ── CSS Custom Properties ── */
 :root {
   /* Primary palette */
-  --primary: #6C5CE7;
-  --primary-light: #A29BFE;
-  --primary-dark: #5A4BD1;
+  --primary: #2D68EB;
+  --primary-light: #5A8CFF;
+  --primary-dark: #1E46A3;
   --accent-gold: #FDCB6E;
   --accent-coral: #E17055;
   --accent-mint: #00B894;
   --accent-rose: #FD79A8;
 
   /* Backgrounds */
-  --bg-primary: #0F0E17;
-  --bg-secondary: #1A1932;
-  --bg-tertiary: #232147;
+  --bg-primary: #0A1128;
+  --bg-secondary: #121E3F;
+  --bg-tertiary: #1A2B56;
   --bg-card: rgba(255, 255, 255, 0.05);
   --bg-glass: rgba(255, 255, 255, 0.08);
   --bg-glass-strong: rgba(255, 255, 255, 0.12);
-  --bg-surface: #1C1B2E;
+  --bg-surface: #15244A;
 
   /* Text */
   --text-primary: #FFFFFE;
@@ -34,14 +34,14 @@
 
   /* Borders */
   --border-glass: rgba(255, 255, 255, 0.1);
-  --border-glow: rgba(108, 92, 231, 0.4);
+  --border-glow: rgba(45, 104, 235, 0.4);
 
   /* Shadows */
   --shadow-soft: 0 4px 30px rgba(0, 0, 0, 0.3);
-  --shadow-glow: 0 0 30px rgba(108, 92, 231, 0.15);
+  --shadow-glow: 0 0 30px rgba(45, 104, 235, 0.15);
   --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.25);
-  --shadow-hover: 0 20px 60px rgba(108, 92, 231, 0.2);
-  --shadow-btn: 0 4px 15px rgba(108, 92, 231, 0.4);
+  --shadow-hover: 0 20px 60px rgba(45, 104, 235, 0.2);
+  --shadow-btn: 0 4px 15px rgba(45, 104, 235, 0.4);
 
   /* Radius */
   --radius-sm: 8px;
@@ -625,7 +625,7 @@ body::before {
   width: 200%;
   height: 200%;
   background:
-    radial-gradient(circle at 20% 50%, rgba(108, 92, 231, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 20% 50%, rgba(45, 104, 235, 0.08) 0%, transparent 50%),
     radial-gradient(circle at 80% 20%, rgba(253, 203, 110, 0.05) 0%, transparent 50%),
     radial-gradient(circle at 40% 80%, rgba(0, 184, 148, 0.04) 0%, transparent 50%);
   pointer-events: none;
@@ -1837,4 +1837,82 @@ input, select, textarea {
   background: linear-gradient(135deg, var(--primary), var(--primary-dark));
   border-color: var(--primary);
   box-shadow: 0 8px 30px rgba(139, 90, 43, 0.3), 0 0 15px rgba(139, 90, 43, 0.15);
+}
+
+/* Profile Avatar & Upload */
+.profile-avatar {
+  width: 100px;
+  height: 100px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  border-radius: 50%;
+  margin: 0 auto 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  color: white;
+  box-shadow: 0 10px 20px rgba(108, 92, 231, 0.3);
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  background-size: cover;
+  background-position: center;
+}
+
+/* ── Dark theme: Select Dropdown Fix ── */
+/* Dropdown açıldığında beyaz arka plan sorununu düzeltir */
+select,
+select option {
+  background: var(--bg-secondary, #1A1932) !important;
+  color: var(--text-primary, #FFFFFE) !important;
+}
+select:focus {
+  background: var(--bg-tertiary, #232147) !important;
+}
+[data-theme="light"] select,
+[data-theme="light"] select option {
+  background: #fff !important;
+  color: #1A1A2E !important;
+}
+[data-theme="light"] select:focus {
+  background: #fff !important;
+}
+
+.profile-avatar.has-image {
+  color: transparent;
+}
+
+.avatar-edit-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s;
+  color: white;
+  font-size: 1.5rem;
+}
+
+.profile-avatar:hover .avatar-edit-overlay {
+  opacity: 1;
+}
+
+.sidebar-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--bg-glass);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  margin-bottom: var(--space-md);
+  border: 1px solid var(--border-glass);
+  background-size: cover;
+  background-position: center;
 }

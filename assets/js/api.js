@@ -1,12 +1,22 @@
-// Kitap verilerini books.json dosyasından dinamik olarak çekmek için fetch() kullanımı
+// Kitap verilerini önce API'den, hata olursa books.json'dan çek
 async function getBooks() {
   try {
     const response = await fetch('http://localhost:3000/api/books');
     if (!response.ok) throw new Error('API Hatası: ' + response.statusText);
-    return await response.json();
+    const books = await response.json();
+    if (books && books.length > 0) return books;
+    throw new Error('API boş dizi döndürdü');
   } catch (error) {
-    console.error('Kitaplar yüklenemedi:', error);
-    return []; // Boş dizi döndür ki mock verilerle karışmasın
+    console.warn('API\'den kitaplar yüklenemedi, books.json\'a geçiliyor:', error.message);
+    // Fallback: books.json'dan oku
+    try {
+      const res = await fetch('books.json');
+      if (!res.ok) throw new Error('books.json okunamadı');
+      return await res.json();
+    } catch (e) {
+      console.error('books.json de okunamadı:', e);
+      return [];
+    }
   }
 }
 
@@ -16,10 +26,19 @@ window.getMockBooks = getBooks;
 // Arama ve kategori filtrelemesi için yardımcı fonksiyon
 window.filterBooks = (books, {query = '', category = ''} = {}) => {
   return books.filter(b => {
-    const matchQuery = query === '' || 
-      (b.title || '').toLowerCase().includes(query.toLowerCase()) || 
-      (b.author || '').toLowerCase().includes(query.toLowerCase());
-    const matchCat = category === '' || b.category === category;
+    const q = query.toLowerCase();
+    const matchQuery = q === '' || 
+      (b.title || '').toLowerCase().includes(q) || 
+      (b.author || '').toLowerCase().includes(q) ||
+      (b.category || '').toLowerCase().includes(q);
+
+    let matchCat = true;
+    if (category === 'Best Seller') {
+      matchCat = b.isBestSeller || b.rating >= 4.5; // Basit bir mantık
+    } else if (category !== '') {
+      matchCat = (b.category || '').toLowerCase() === category.toLowerCase();
+    }
+    
     return matchQuery && matchCat;
   });
 };

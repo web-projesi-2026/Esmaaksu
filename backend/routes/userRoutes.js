@@ -1,6 +1,36 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../config/database');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+
+// Multer Konfigürasyonu (Profil Resimleri için)
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const dir = 'backend/uploads/profiles/';
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    cb(null, dir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    cb(null, 'profile-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({ 
+  storage: storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Sadece resim dosyaları yüklenebilir!'), false);
+    }
+  }
+});
 
 // ==========================================
 // ALICI (users tablosu) İşlemleri
@@ -41,23 +71,68 @@ router.post('/login', async (req, res) => {
     // Önce admins tablosuna bak
     const [admins] = await pool.query('SELECT * FROM admins WHERE email = ? AND password = ?', [email, password]);
     if (admins.length > 0) {
-      return res.json({ id: admins[0].id, name: admins[0].name, email: admins[0].email, role: 'admin' });
+      return res.json({ 
+        id: admins[0].id, 
+        name: admins[0].name, 
+        email: admins[0].email, 
+        profile_image: admins[0].profile_image,
+        role: 'admin' 
+      });
     }
 
     // Sonra sellers tablosuna bak
     const [sellers] = await pool.query('SELECT * FROM sellers WHERE email = ? AND password = ?', [email, password]);
     if (sellers.length > 0) {
-      return res.json({ id: sellers[0].id, name: sellers[0].name, email: sellers[0].email, role: 'seller' });
+      return res.json({ 
+        id: sellers[0].id, 
+        name: sellers[0].name, 
+        email: sellers[0].email, 
+        profile_image: sellers[0].profile_image,
+        role: 'seller' 
+      });
     }
 
     // Son olarak users (alıcılar) tablosuna bak
     const [users] = await pool.query('SELECT * FROM users WHERE email = ? AND password = ?', [email, password]);
     if (users.length > 0) {
-      return res.json({ id: users[0].id, name: users[0].name, email: users[0].email, role: 'buyer' });
+      return res.json({ 
+        id: users[0].id, 
+        name: users[0].name, 
+        email: users[0].email, 
+        profile_image: users[0].profile_image,
+        role: 'buyer' 
+      });
     }
 
     // Hiçbirinde bulunamadı
     res.status(401).json({ message: 'Geçersiz e-posta veya parola' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Profil Resmi Yükleme
+router.post('/upload-profile-image', upload.single('profileImage'), async (req, res) => {
+  try {
+    const { userId, role } = req.body;
+    if (!req.file) {
+      return res.status(400).json({ message: 'Lütfen bir dosya seçin.' });
+    }
+
+    const imagePath = 'backend/uploads/profiles/' + req.file.filename;
+    
+    // Rolüne göre tabloyu belirle
+    let table = 'users';
+    if (role === 'seller') table = 'sellers';
+    else if (role === 'admin') table = 'admins';
+
+    // Veritabanını güncelle
+    await pool.query(`UPDATE ${table} SET profile_image = ? WHERE id = ?`, [imagePath, userId]);
+
+    res.json({ 
+      message: 'Profil resmi başarıyla yüklendi.',
+      profile_image: imagePath 
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

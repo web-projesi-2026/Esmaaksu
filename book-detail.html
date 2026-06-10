@@ -295,6 +295,7 @@
     }
     .bkm-red-btn:hover { color: white; background-color: var(--primary); }
   </style>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📚</text></svg>">
 </head>
 <body>
   <header class="site-header">
@@ -514,9 +515,11 @@
               document.getElementById('bkm-image').src = book.image;
           }
 
-          // Favori Butonu
+          // Favori Butonu — ID'yi her zaman parseInt ile kaydet
           const favBtn = document.getElementById('bkm-fav-btn');
-          const isFav = getFavorites().includes(book.id);
+          const favBookId = parseInt(book.id);
+          const getFavs = () => (JSON.parse(localStorage.getItem('favorites')) || []).map(id => parseInt(id));
+          const isFav = getFavs().includes(favBookId);
           if(isFav) {
               favBtn.innerHTML = '<i class="bi bi-heart-fill"></i> Favorilerden Çıkar';
           } else {
@@ -525,13 +528,13 @@
 
           favBtn.addEventListener('click', (e) => {
               e.preventDefault();
-              let favs = getFavorites();
-              if(favs.includes(book.id)) {
-                  favs = favs.filter(id => id !== book.id);
+              let favs = getFavs();
+              if(favs.includes(favBookId)) {
+                  favs = favs.filter(id => id !== favBookId);
                   favBtn.innerHTML = '<i class="bi bi-heart"></i> Favorilere Ekle';
                   showToast('Favorilerden çıkarıldı!', 'info');
               } else {
-                  favs.push(book.id);
+                  favs.push(favBookId);
                   favBtn.innerHTML = '<i class="bi bi-heart-fill"></i> Favorilerden Çıkar';
                   showToast('Favorilere eklendi!', 'success');
               }

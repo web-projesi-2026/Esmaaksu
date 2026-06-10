@@ -16,8 +16,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     setTimeout(() => toast.remove(), 3000);
   }
 
-  // LocalStorage Helpers
-  const getFavorites = () => JSON.parse(localStorage.getItem('favorites')) || [];
+  // LocalStorage Helpers — ID'leri her zaman integer olarak normalize et
+  const getFavorites = () => {
+    const raw = JSON.parse(localStorage.getItem('favorites')) || [];
+    // String/number karışıklığını önlemek için tümünü integer'a çevir
+    return raw.map(id => parseInt(id));
+  };
+
   const getCart = () => JSON.parse(localStorage.getItem('cart')) || [];
   
   const updateCartCount = () => {
@@ -31,6 +36,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   updateCartCount();
 
   const toggleFavorite = (id) => {
+    id = parseInt(id);
     let favs = getFavorites();
     if (favs.includes(id)) {
       favs = favs.filter(fId => fId !== id);
@@ -44,7 +50,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const addToCart = (book) => {
     let cart = getCart();
-    const existing = cart.find(item => item.id === book.id);
+    const bookId = parseInt(book.id);
+    const existing = cart.find(item => parseInt(item.id) === bookId);
     if (existing) {
       existing.quantity += 1;
     } else {
@@ -75,7 +82,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       : `<div style="width:100%; height:100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display:flex; align-items:center; justify-content:center;"><i class="bi bi-book" style="font-size:3rem; color:rgba(255,255,255,0.3);"></i></div>`;
 
     col.innerHTML = `
-      <div class="card h-100 position-relative">
+      <div class="card h-100 position-relative" style="animation: fadeInUp 0.4s ease forwards;">
         <button class="btn btn-sm btn-light remove-fav-btn" data-id="${book.id}" style="position:absolute; top:10px; right:10px; z-index:10; border-radius:50%; width:30px; height:30px; padding:0; display:flex; align-items:center; justify-content:center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
           <i class="bi bi-x-lg text-danger"></i>
         </button>
@@ -85,10 +92,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         <div class="card-body d-flex flex-column">
           <h5 class="card-title" style="font-size:0.95rem; margin-bottom:0.5rem; cursor:pointer;" onclick="window.location.href='book-detail.html?id=${book.id}'">${book.title}</h5>
           <p class="card-text text-muted" style="font-size:0.85rem; margin-bottom:0.5rem;">${book.author}</p>
-          ${starsHTML(book.rating)}
+          ${starsHTML(book.rating || 0)}
           <div class="mt-auto pt-3">
             <div class="d-flex justify-content-between align-items-center mb-2">
-              <span class="fw-bold text-primary">${book.price} TL</span>
+              <span class="fw-bold text-primary">${parseFloat(book.price).toFixed(2)} TL</span>
+              <span class="badge bg-light text-dark" style="font-size: 0.65rem;">${book.category || ''}</span>
             </div>
             <button class="btn btn-primary btn-sm w-100 add-cart-btn" data-id="${book.id}">
               <i class="bi bi-bag-plus me-1"></i>Sepete Ekle
@@ -113,8 +121,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     try {
-      const response = await fetch('http://localhost:3000/api/books');
-      const allBooks = await response.json();
+      const allBooks = await window.getMockBooks();
+      
       const favBooks = allBooks.filter(b => favIds.includes(parseInt(b.id)));
 
       grid.innerHTML = '';
@@ -143,7 +151,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.querySelectorAll('.add-cart-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const id = parseInt(btn.getAttribute('data-id'));
-        const book = books.find(b => b.id === id);
+        const book = books.find(b => parseInt(b.id) === id);
         if (book) {
           addToCart(book);
           showToast('Ürün sepete eklendi!', 'success');

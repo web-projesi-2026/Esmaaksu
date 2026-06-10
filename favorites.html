@@ -66,6 +66,7 @@
       gap: 5px;
     }
   </style>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📚</text></svg>">
 </head>
 <body>
   <header class="site-header">
@@ -93,6 +94,16 @@
         </div>
       </div>
     </nav>
+    <nav class="category-nav container mt-2 overflow-auto d-flex">
+      <a href="category.html?category=Edebiyat" data-category="Edebiyat">EDEBİYAT KİTAPLARI</a>
+      <a href="category.html?category=Kırtasiye" data-category="Kırtasiye">KIRTASİYE</a>
+      <a href="category.html?category=Okula Yardımcı" data-category="Okula Yardımcı">OKULA YARDIMCI</a>
+      <a href="category.html?category=Sınavlara Hazırlık" data-category="Sınavlara Hazırlık">SINAVLARA HAZIRLIK</a>
+      <a href="category.html?category=Çocuk" data-category="Çocuk">ÇOCUK KİTAPLARI</a>
+      <a href="category.html?category=Kitap Tavsiye" data-category="Kitap Tavsiye">KİTAP TAVSİYE</a>
+      <a href="category.html?category=" data-category="">TÜM KAMPANYALAR</a>
+      <span class="badge" style="cursor: pointer;" data-category="Best Seller" onclick="window.location.href='category.html?category=Best Seller'">ÇOK SATANLAR</span>
+    </nav>
   </header>
 
   <main class="container main">
@@ -103,13 +114,13 @@
           <div class="sidebar-avatar"><i class="bi bi-person"></i></div>
           <div class="sidebar-name">Esma Aksu</div>
           <div class="sidebar-role" style="font-size: 0.8rem; opacity: 0.7;">aksuesma508@gmail.com</div>
-          <a href="#" class="btn btn-outline-secondary btn-sm mt-3" style="width: 100%; border-radius: 20px; font-size: 0.8rem;">
+          <a href="profile.html" class="btn btn-outline-secondary btn-sm mt-3" style="width: 100%; border-radius: 20px; font-size: 0.8rem;">
             <i class="bi bi-list me-1"></i> Hesabım
           </a>
         </div>
         <ul class="sidebar-nav mt-3">
           <li><a href="buyer.html"><i class="bi bi-person"></i> KİŞİSEL BİLGİLERİM</a></li>
-          <li><a href="#"><i class="bi bi-chat-dots"></i> MESAJLARIM</a></li>
+          <li><a href="support.html"><i class="bi bi-chat-dots"></i> MESAJLARIM</a></li>
           <li class="mt-4"><a href="index.html" style="color: var(--text-primary);"><i class="bi bi-power"></i> ÇIKIŞ</a></li>
         </ul>
       </aside>
@@ -151,6 +162,7 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
   <script src="assets/js/theme-toggle.js"></script>
   <script src="assets/js/nav.js"></script>
+  <script src="assets/js/api.js"></script>
   <script src="assets/js/pages/favorites.js"></script>
 </body>
 </html>

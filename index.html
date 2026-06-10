@@ -100,28 +100,37 @@
     <!-- Features Strip -->
     <section class="features-strip py-4 mt-4">
       <div class="row g-3 text-center">
-        <div class="col-6 col-md-3">
+        <div class="col-6 col-md">
           <div class="glass-panel p-3" style="border-radius: var(--radius-md);">
             <i class="bi bi-truck fs-4" style="color: var(--primary-light);"></i>
             <p class="mb-0 mt-2" style="font-size:0.8rem; color: var(--text-secondary);">Ücretsiz Kargo</p>
           </div>
         </div>
-        <div class="col-6 col-md-3">
+        <div class="col-6 col-md">
           <div class="glass-panel p-3" style="border-radius: var(--radius-md);">
             <i class="bi bi-shield-check fs-4" style="color: var(--accent-mint);"></i>
             <p class="mb-0 mt-2" style="font-size:0.8rem; color: var(--text-secondary);">Güvenli Ödeme</p>
           </div>
         </div>
-        <div class="col-6 col-md-3">
+        <div class="col-6 col-md">
           <div class="glass-panel p-3" style="border-radius: var(--radius-md);">
             <i class="bi bi-arrow-repeat fs-4" style="color: var(--accent-gold);"></i>
             <p class="mb-0 mt-2" style="font-size:0.8rem; color: var(--text-secondary);">Kolay İade</p>
           </div>
         </div>
-        <div class="col-6 col-md-3">
+        <div class="col-6 col-md">
           <div class="glass-panel p-3" style="border-radius: var(--radius-md);">
             <i class="bi bi-headset fs-4" style="color: var(--accent-coral);"></i>
             <p class="mb-0 mt-2" style="font-size:0.8rem; color: var(--text-secondary);">7/24 Destek</p>
+          </div>
+        </div>
+        <div class="col-12 col-md">
+          <div class="glass-panel p-3" style="border-radius: var(--radius-md); background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; border: none; box-shadow: 0 4px 10px rgba(0,242,254,0.2);">
+            <i class="bi bi-cloud-sun fs-4" id="weather-icon" style="text-shadow: 0 2px 5px rgba(0,0,0,0.2);"></i>
+            <div class="mt-1 d-flex flex-column justify-content-center">
+              <span id="weather-temp" style="font-size: 1.1rem; font-weight: bold; text-shadow: 0 2px 5px rgba(0,0,0,0.2);">--°C</span>
+              <p class="mb-0" id="weather-desc" style="font-size:0.75rem; color: rgba(255,255,255,0.9); line-height: 1;">İstanbul</p>
+            </div>
           </div>
         </div>
       </div>
@@ -212,5 +221,59 @@
   <script src="assets/js/api.js"></script>
   <script src="assets/js/nav.js"></script>
   <script src="assets/js/pages/main.js"></script>
+  <script>
+    // Hava Durumu Çekme (Meteosource API)
+    document.addEventListener('DOMContentLoaded', () => {
+      const fetchWeather = async () => {
+        try {
+          const apiKey = 'r3cy2h3pgitjig10h3se04kjnos0vuzq7kcjznlq';
+          const place = 'istanbul';
+          const url = `https://www.meteosource.com/api/v1/free/point?place_id=${place}&sections=current&language=en&units=metric&key=${apiKey}`;
+          
+          const response = await fetch(url);
+          const data = await response.json();
+          
+          if (data && data.current) {
+            const temp = Math.round(data.current.temperature);
+            const summary = data.current.summary;
+            const iconStr = data.current.icon;
+            
+            const tempEl = document.getElementById('weather-temp');
+            const descEl = document.getElementById('weather-desc');
+            const iconEl = document.getElementById('weather-icon');
+
+            if (tempEl) tempEl.textContent = `${temp}°C`;
+            
+            const summaryMap = {
+              'Sunny': 'Güneşli', 'Clear': 'Açık', 'Mostly sunny': 'Çoğ. Güneşli',
+              'Partly sunny': 'Parçalı Güneşli', 'Mostly cloudy': 'Çoğ. Bulutlu',
+              'Cloudy': 'Bulutlu', 'Overcast': 'Kapalı', 'Rain': 'Yağmurlu',
+              'Light rain': 'Hafif Yağmur', 'Showers': 'Sağanak',
+              'Thunderstorm': 'Fırtına', 'Snow': 'Karlı', 'Fog': 'Sisli'
+            };
+            const translatedSummary = summaryMap[summary] || summary;
+            
+            if (descEl) descEl.innerHTML = `İst, ${translatedSummary}`;
+            
+            const iconMap = {
+              'sunny': 'bi-sun-fill', 'clear': 'bi-moon-stars-fill',
+              'mostly_sunny': 'bi-cloud-sun-fill', 'partly_sunny': 'bi-cloud-sun-fill',
+              'mostly_cloudy': 'bi-cloud-fill', 'cloudy': 'bi-clouds-fill',
+              'overcast': 'bi-cloud-fill', 'rain': 'bi-cloud-rain-fill',
+              'light_rain': 'bi-cloud-drizzle-fill', 'showers': 'bi-cloud-rain-heavy-fill',
+              'thunderstorm': 'bi-cloud-lightning-rain-fill', 'snow': 'bi-cloud-snow-fill',
+              'fog': 'bi-cloud-haze-fill'
+            };
+            
+            if (iconEl) iconEl.className = `bi ${iconMap[iconStr] || 'bi-cloud-sun'} fs-4`;
+          }
+        } catch (error) {
+          console.error("Hava durumu çekilemedi:", error);
+        }
+      };
+
+      fetchWeather();
+    });
+  </script>
 </body>
 </html>

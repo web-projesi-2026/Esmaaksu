@@ -7,6 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
   <link rel="stylesheet" href="assets/css/global.css">
   <style>
     .profile-layout {
@@ -99,7 +100,60 @@
       color: var(--text-muted);
       margin-bottom: 0;
     }
+
+    /* Cropper Modal Styles */
+    .crop-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .crop-container {
+      background: var(--bg-surface);
+      border-radius: var(--radius-lg);
+      padding: 25px;
+      width: 100%;
+      max-width: 500px;
+      position: relative;
+    }
+    .crop-wrapper {
+      width: 100%;
+      height: 400px;
+      background: #111;
+      margin-bottom: 25px;
+      overflow: hidden;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-glass);
+    }
+    .crop-wrapper img {
+      max-width: 100%;
+    }
+    .crop-controls {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    /* Circular Cropper Mask */
+    .cropper-view-box,
+    .cropper-face {
+      border-radius: 50%;
+    }
+    
+    /* Ensure the background of the cropper is dark to contrast the circle */
+    .cropper-modal {
+      background-color: rgba(0, 0, 0, 0.7) !important;
+      opacity: 0.8 !important;
+    }
   </style>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📚</text></svg>">
 </head>
 <body data-theme="dark">
   <header class="site-header">
@@ -117,7 +171,13 @@
     <div class="profile-layout">
       <!-- Sidebar -->
       <aside class="profile-sidebar">
-        <div class="profile-avatar" id="profile-avatar">U</div>
+        <div class="profile-avatar" id="profile-avatar" title="Fotoğrafı Değiştir">
+          <span id="avatar-initial">U</span>
+          <div class="avatar-edit-overlay">
+            <i class="bi bi-camera"></i>
+          </div>
+        </div>
+        <input type="file" id="profile-image-input" accept="image/*" style="display: none;">
         <h3 id="profile-name" style="font-size: 1.25rem;">Kullanıcı Adı</h3>
         <p id="profile-email" class="text-muted small">email@example.com</p>
         
@@ -164,30 +224,224 @@
             <h4>HABERDAR ET</h4>
             <p>Stok alarm listem</p>
           </div>
+          <!-- Hava Durumu Widget -->
+          <div class="dashboard-card" id="weather-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; border: none; box-shadow: 0 10px 20px rgba(0, 242, 254, 0.3);">
+            <i class="bi bi-cloud-sun" id="weather-icon" style="color: white; font-size: 2.5rem; text-shadow: 0 2px 5px rgba(0,0,0,0.2);"></i>
+            <h4 id="weather-temp" style="font-size: 1.5rem; margin-top: 10px; color: white; text-shadow: 0 2px 5px rgba(0,0,0,0.2);">--°C</h4>
+            <p id="weather-desc" style="color: rgba(255,255,255,0.9); font-weight: 500;">Hava Durumu (İstanbul)</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Crop Modal -->
+    <div class="crop-modal" id="crop-modal">
+      <div class="crop-container">
+        <h3 class="mb-3" style="font-size: 1.25rem;">Fotoğrafı Düzenle</h3>
+        <div class="crop-wrapper">
+          <img id="crop-image" src="">
+        </div>
+        <div class="crop-controls">
+          <button class="btn btn-outline-secondary w-100" id="crop-cancel">İptal</button>
+          <button class="btn btn-primary w-100" id="crop-save">Kaydet ve Yükle</button>
         </div>
       </div>
     </div>
   </main>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const userId = localStorage.getItem('userId');
       const userName = localStorage.getItem('userName');
       const userEmail = localStorage.getItem('userEmail');
+      const userRole = localStorage.getItem('userRole');
+      const userProfileImage = localStorage.getItem('userProfileImage');
 
       if (!userId) {
         window.location.href = 'login.html';
         return;
       }
 
-      document.getElementById('profile-name').textContent = userName || 'Kullanıcı';
-      document.getElementById('profile-email').textContent = userEmail || '';
-      document.getElementById('profile-avatar').textContent = (userName || 'U').charAt(0).toUpperCase();
+      const avatarEl = document.getElementById('profile-avatar');
+      const initialEl = document.getElementById('avatar-initial');
+      const nameEl = document.getElementById('profile-name');
+      const emailEl = document.getElementById('profile-email');
+      const fileInput = document.getElementById('profile-image-input');
+      
+      const cropModal = document.getElementById('crop-modal');
+      const cropImage = document.getElementById('crop-image');
+      const cropCancel = document.getElementById('crop-cancel');
+      const cropSave = document.getElementById('crop-save');
+      
+      let cropper = null;
+
+      nameEl.textContent = userName || 'Kullanıcı';
+      emailEl.textContent = userEmail || '';
+      
+      const updateAvatarUI = (imageUrl) => {
+        if (imageUrl) {
+          avatarEl.style.backgroundImage = `url('${imageUrl}')`;
+          avatarEl.classList.add('has-image');
+          initialEl.style.display = 'none';
+        } else {
+          avatarEl.style.backgroundImage = 'none';
+          avatarEl.classList.remove('has-image');
+          initialEl.style.display = 'block';
+          initialEl.textContent = (userName || 'U').charAt(0).toUpperCase();
+        }
+      };
+
+      updateAvatarUI(userProfileImage);
+
+      avatarEl.addEventListener('click', () => fileInput.click());
+
+      fileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          cropImage.src = event.target.result;
+          cropModal.style.display = 'flex';
+          
+          if (cropper) cropper.destroy();
+          
+          cropper = new Cropper(cropImage, {
+            aspectRatio: 1,
+            viewMode: 1,
+            guides: false,
+            autoCropArea: 1,
+            movable: true,
+            zoomable: true,
+            rotatable: true,
+            scalable: true
+          });
+        };
+        reader.readAsDataURL(file);
+      });
+
+      cropCancel.addEventListener('click', () => {
+        cropModal.style.display = 'none';
+        fileInput.value = '';
+        if (cropper) cropper.destroy();
+      });
+
+      cropSave.addEventListener('click', () => {
+        if (!cropper) return;
+
+        const canvas = cropper.getCroppedCanvas({
+          width: 400,
+          height: 400
+        });
+
+        canvas.toBlob(async (blob) => {
+          const formData = new FormData();
+          formData.append('profileImage', blob, 'profile.jpg');
+          formData.append('userId', userId);
+          formData.append('role', userRole || 'buyer');
+
+          cropSave.disabled = true;
+          cropSave.textContent = 'Yükleniyor...';
+
+          try {
+            const response = await fetch('/api/users/upload-profile-image', {
+              method: 'POST',
+              body: formData
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+              localStorage.setItem('userProfileImage', result.profile_image);
+              updateAvatarUI(result.profile_image);
+              cropModal.style.display = 'none';
+              alert('Profil fotoğrafı başarıyla güncellendi!');
+            } else {
+              alert(result.message || 'Yükleme başarısız oldu.');
+            }
+          } catch (error) {
+            console.error('Yükleme hatası:', error);
+            alert('Bir hata oluştu.');
+          } finally {
+            cropSave.disabled = false;
+            cropSave.textContent = 'Kaydet ve Yükle';
+            fileInput.value = '';
+          }
+        }, 'image/jpeg', 0.9);
+      });
 
       document.getElementById('logout-sidebar').addEventListener('click', () => {
         localStorage.clear();
         window.location.href = 'index.html';
       });
+
+      // Hava Durumu Çekme (Meteosource API)
+      const fetchWeather = async () => {
+        try {
+          const apiKey = 'r3cy2h3pgitjig10h3se04kjnos0vuzq7kcjznlq';
+          const place = 'istanbul';
+          const url = `https://www.meteosource.com/api/v1/free/point?place_id=${place}&sections=current&language=en&units=metric&key=${apiKey}`;
+          
+          const response = await fetch(url);
+          const data = await response.json();
+          
+          if (data && data.current) {
+            const temp = Math.round(data.current.temperature);
+            const summary = data.current.summary;
+            const iconStr = data.current.icon; // e.g. "sunny", "cloudy", "rain"
+            
+            document.getElementById('weather-temp').textContent = `${temp}°C`;
+            
+            // İngilizce özetleri Türkçeye çevirme (basit)
+            const summaryMap = {
+              'Sunny': 'Güneşli',
+              'Clear': 'Açık',
+              'Mostly sunny': 'Çoğunlukla Güneşli',
+              'Partly sunny': 'Parçalı Güneşli',
+              'Mostly cloudy': 'Çoğunlukla Bulutlu',
+              'Cloudy': 'Bulutlu',
+              'Overcast': 'Kapalı',
+              'Rain': 'Yağmurlu',
+              'Light rain': 'Hafif Yağmurlu',
+              'Showers': 'Sağanak Yağışlı',
+              'Thunderstorm': 'Gök Gürültülü Fırtına',
+              'Snow': 'Karlı',
+              'Fog': 'Sisli'
+            };
+            const translatedSummary = summaryMap[summary] || summary;
+            document.getElementById('weather-desc').innerHTML = `${translatedSummary}<br><small>İstanbul</small>`;
+            
+            // İkonları eşleştirme
+            const iconMap = {
+              'sunny': 'bi-sun-fill',
+              'clear': 'bi-moon-stars-fill',
+              'mostly_sunny': 'bi-cloud-sun-fill',
+              'partly_sunny': 'bi-cloud-sun-fill',
+              'mostly_cloudy': 'bi-cloud-fill',
+              'cloudy': 'bi-clouds-fill',
+              'overcast': 'bi-cloud-fill',
+              'rain': 'bi-cloud-rain-fill',
+              'light_rain': 'bi-cloud-drizzle-fill',
+              'showers': 'bi-cloud-rain-heavy-fill',
+              'thunderstorm': 'bi-cloud-lightning-rain-fill',
+              'snow': 'bi-cloud-snow-fill',
+              'fog': 'bi-cloud-haze-fill'
+            };
+            
+            const defaultIcon = 'bi-cloud-sun';
+            const mappedIcon = iconMap[iconStr] || defaultIcon;
+            
+            const iconEl = document.getElementById('weather-icon');
+            iconEl.className = `bi ${mappedIcon}`;
+          }
+        } catch (error) {
+          console.error("Hava durumu çekilemedi:", error);
+          document.getElementById('weather-temp').textContent = 'Hata';
+        }
+      };
+
+      fetchWeather();
     });
   </script>
 </body>

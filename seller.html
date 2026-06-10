@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
   <link rel="stylesheet" href="assets/css/global.css">
   <link rel="stylesheet" href="assets/css/pages/seller.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📚</text></svg>">
 </head>
 <body class="seller-body">
 
@@ -27,9 +28,9 @@
 
       <div style="margin-top: auto; padding-top: 40px;">
         <div class="d-flex align-items-center gap-3 p-3" style="background: rgba(255,255,255,0.05); border-radius: 12px;">
-          <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--seller-accent); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1rem;">E</div>
+          <div id="seller-avatar" style="width: 40px; height: 40px; border-radius: 50%; background: var(--seller-accent); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1rem; background-size: cover; background-position: center;">E</div>
           <div>
-            <div style="font-size: 0.85rem; font-weight: 600;" id="sidebar-name">Satıcı</div>
+            <div style="font-size: 0.85rem; font-weight: 600;" id="seller-sidebar-name">Satıcı</div>
             <div style="font-size: 0.75rem; color: var(--seller-accent);">Satıcı Hesabı</div>
           </div>
         </div>
@@ -63,6 +64,14 @@
           <div class="info">
             <h4 id="stat-active">0</h4>
             <p>Aktif İlan</p>
+          </div>
+        </div>
+        <!-- Hava Durumu -->
+        <div class="stat-box" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; border: none; box-shadow: 0 5px 15px rgba(0, 242, 254, 0.2);">
+          <div class="icon" style="color: white; background: rgba(255, 255, 255, 0.2);"><i class="bi bi-cloud-sun" id="weather-icon"></i></div>
+          <div class="info">
+            <h4 id="weather-temp" style="color: white;">--°C</h4>
+            <p id="weather-desc" style="color: rgba(255,255,255,0.9);">İstanbul</p>
           </div>
         </div>
       </div>
@@ -157,5 +166,59 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
   <script src="assets/js/api.js"></script>
   <script src="assets/js/pages/seller.js"></script>
+  <script>
+    // Hava Durumu Çekme (Meteosource API)
+    document.addEventListener('DOMContentLoaded', () => {
+      const fetchWeather = async () => {
+        try {
+          const apiKey = 'r3cy2h3pgitjig10h3se04kjnos0vuzq7kcjznlq';
+          const place = 'istanbul';
+          const url = `https://www.meteosource.com/api/v1/free/point?place_id=${place}&sections=current&language=en&units=metric&key=${apiKey}`;
+          
+          const response = await fetch(url);
+          const data = await response.json();
+          
+          if (data && data.current) {
+            const temp = Math.round(data.current.temperature);
+            const summary = data.current.summary;
+            const iconStr = data.current.icon;
+            
+            const tempEl = document.getElementById('weather-temp');
+            const descEl = document.getElementById('weather-desc');
+            const iconEl = document.getElementById('weather-icon');
+
+            if (tempEl) tempEl.textContent = `${temp}°C`;
+            
+            const summaryMap = {
+              'Sunny': 'Güneşli', 'Clear': 'Açık', 'Mostly sunny': 'Çoğ. Güneşli',
+              'Partly sunny': 'Parçalı Güneşli', 'Mostly cloudy': 'Çoğ. Bulutlu',
+              'Cloudy': 'Bulutlu', 'Overcast': 'Kapalı', 'Rain': 'Yağmurlu',
+              'Light rain': 'Hafif Yağmur', 'Showers': 'Sağanak',
+              'Thunderstorm': 'Fırtına', 'Snow': 'Karlı', 'Fog': 'Sisli'
+            };
+            const translatedSummary = summaryMap[summary] || summary;
+            
+            if (descEl) descEl.innerHTML = `${translatedSummary} <span style="font-size:0.7rem; opacity:0.8;">(İst)</span>`;
+            
+            const iconMap = {
+              'sunny': 'bi-sun-fill', 'clear': 'bi-moon-stars-fill',
+              'mostly_sunny': 'bi-cloud-sun-fill', 'partly_sunny': 'bi-cloud-sun-fill',
+              'mostly_cloudy': 'bi-cloud-fill', 'cloudy': 'bi-clouds-fill',
+              'overcast': 'bi-cloud-fill', 'rain': 'bi-cloud-rain-fill',
+              'light_rain': 'bi-cloud-drizzle-fill', 'showers': 'bi-cloud-rain-heavy-fill',
+              'thunderstorm': 'bi-cloud-lightning-rain-fill', 'snow': 'bi-cloud-snow-fill',
+              'fog': 'bi-cloud-haze-fill'
+            };
+            
+            if (iconEl) iconEl.className = `bi ${iconMap[iconStr] || 'bi-cloud-sun'}`;
+          }
+        } catch (error) {
+          console.error("Hava durumu çekilemedi:", error);
+        }
+      };
+
+      fetchWeather();
+    });
+  </script>
 </body>
 </html>
